@@ -18,7 +18,7 @@ export const useSocket = () => {
 export const SocketProvider = ({ children }) => {
   const socketConnection = useMemo(() => {
     if (!socket) {
-      socket = io("http://localhost:8000", {
+      socket = io("https://chatingroom.onrender.com", {
         transports: ["websocket"], // Optional: Force WebSocket
       });
     }
