@@ -90,7 +90,7 @@ io.on("connection", (socket) => {
       await room.save();
     }
 
-    io.to(roomKey).emit("chatMessage", { username, message });
+    io.to(roomKey).emit("reciveMessages", { messages: room?.messages });
   });
 
   // Handle disconnections

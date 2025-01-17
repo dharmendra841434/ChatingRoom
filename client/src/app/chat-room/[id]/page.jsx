@@ -14,9 +14,14 @@ const ChatScreen = () => {
   const path = usePathname();
   const searchParams = useSearchParams();
 
-  const handleJoinedRoom = () => (data) => {
-    console.log(`User ${data.username} has joined the room ${data.roomKey}!`);
-    console.log(data?.allUsers, "they are in the room");
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    socket.emit("chatMessage", {
+      roomKey: getChatRoomId(path),
+      message: input,
+      username: searchParams.get("username"),
+    });
+    setInput("");
   };
 
   useEffect(() => {
@@ -30,10 +35,27 @@ const ChatScreen = () => {
     });
 
     // Handle system messages
-    socket.on("user:joined", handleJoinedRoom);
+    socket.on("user:joined", (data) => {
+      console.log(`User ${data.username} has joined the room ${data.roomKey}!`);
+      console.log(data?.allUsers, "they are in the room");
+      const uniqueUsers = data?.allUsers.filter(
+        (value, index, self) =>
+          index ===
+          self.findIndex(
+            (t) => t.socketId === value.socketId // Ensure uniqueness based on socketId
+          )
+      );
+
+      setUsers(uniqueUsers);
+    });
+
+    socket.on("reciveMessages", (data) => {
+      console.log(data, "recived messages");
+      setMessages(data.messages);
+    });
 
     return () => {
-      socket.off("user:joined", handleJoinedRoom);
+      socket.off("user:joined");
     };
   }, [socket]);
 
@@ -50,7 +72,7 @@ const ChatScreen = () => {
               key={index}
               className="p-4 hover:bg-gray-200 cursor-pointer border-b border-gray-300"
             >
-              {user}
+              {user.username}
             </li>
           ))}
         </ul>
@@ -72,7 +94,7 @@ const ChatScreen = () => {
                     : "bg-gray-100"
                 }`}
               >
-                <strong>{message.sender}</strong>: {message.text}
+                <strong>{message.username}</strong>: {message.message}
               </div>
             ))
           )}
@@ -80,10 +102,7 @@ const ChatScreen = () => {
 
         {/* Input */}
         <div className="p-2 border-t border-gray-300">
-          <form
-            //onSubmit={handleSendMessage}
-            className="flex"
-          >
+          <form onSubmit={handleSendMessage} className="flex">
             <input
               type="text"
               value={input}
