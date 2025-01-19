@@ -5,11 +5,16 @@ import dotenv from "dotenv";
 import Room from "./models/room.model.js";
 import DBConnector from "./db/connections.js";
 import cors from "cors";
+import AuthRouter from "./routes/auth.route.js";
+import bodyParser from "body-parser";
 
 // Create an Express application
 const app = express();
 const server = http.createServer(app);
 dotenv.config();
+
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // Initialize Socket.IO
 const io = new Server(server, {
@@ -115,6 +120,8 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {
   res.send("Group Chat Server is running.");
 });
+
+app.use("/api/v1/auth", AuthRouter);
 
 // Check Existing room
 app.get("/check-room", async (req, res) => {
