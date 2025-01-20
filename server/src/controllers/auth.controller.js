@@ -21,7 +21,14 @@ const login = async (req, res, next) => {
     const isMatch = await resp.checkPassword(req?.body.password);
     if (isMatch) {
       const token = resp.generateJWTToken();
-      res.cookie("accessToken", token, "jywuedsjfsd");
+      const cookieOptions = {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week in milliseconds
+        secure: process.env.NODE_ENV === "production", // Secure only in production
+        sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax", // Strict in production, Lax for local testing
+      };
+
+      res.cookie("accessToken", token, cookieOptions);
       req.rData = { token };
     } else {
       req.rCode = 5;

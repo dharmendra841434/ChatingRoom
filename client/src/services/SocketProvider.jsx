@@ -1,6 +1,8 @@
 "use client";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useMemo } from "react";
+import { ToastContainer } from "react-toastify";
 import { io } from "socket.io-client";
 
 let socket; // Singleton socket instance
@@ -25,9 +27,15 @@ export const SocketProvider = ({ children }) => {
     return socket;
   }, []);
 
+  // Create a client
+  const queryClient = new QueryClient();
+
   return (
-    <SocketContext.Provider value={socketConnection}>
-      {children}
-    </SocketContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <SocketContext.Provider value={socketConnection}>
+        {children}
+        <ToastContainer />
+      </SocketContext.Provider>
+    </QueryClientProvider>
   );
 };

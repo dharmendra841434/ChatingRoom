@@ -27,11 +27,13 @@ const io = new Server(server, {
 
 DBConnector();
 
-app.use(
-  cors({
-    origin: "*", // Update to match your frontend URL
-  })
-);
+const corsConfig = {
+  origin: ["http://localhost:3000", "https://chating-room.vercel.app"],
+  methods: ["GET", "POST"],
+  credentials: true,
+};
+
+app.use(cors(corsConfig));
 
 // Handle client connections
 io.on("connection", (socket) => {
