@@ -16,14 +16,9 @@ const SelectedOptions = ({ show, handleClose }) => {
 
   const handleCreateGroup = (e) => {
     e.preventDefault();
-    // console.log("Create Group", groupName);
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decoded = jwtDecode(token);
-      createGroup({ groupName, userId: decoded.id });
-      handleClose();
-      setGroupName("");
-    }
+    createGroup({ groupName });
+    handleClose();
+    setGroupName("");
   };
 
   const handleJoinGroup = (e) => {

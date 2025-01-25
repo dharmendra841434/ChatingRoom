@@ -3,7 +3,7 @@ import Group from "../models/group.model.js";
 import { generateRandomString } from "../utils/helper.js";
 
 const getAllGropsOfUser = async (req, res, next) => {
-  const userId = req.params.owner;
+  const { userId } = req.body;
   const groups = await Group.find({
     allUsers: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } },
   });

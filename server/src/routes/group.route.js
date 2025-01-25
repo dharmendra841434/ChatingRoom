@@ -13,7 +13,9 @@ router.get("/health", (req, res) => {
   res.send("Groups Service is Healthy!");
 });
 
-router.route("/all/:owner").get(getAllGropsOfUser, responseMiddleware);
+router
+  .route("/all")
+  .get(verifyUserToken, getAllGropsOfUser, responseMiddleware);
 router
   .route("/create")
   .post(verifyUserToken, createNewGroup, responseMiddleware);

@@ -2,18 +2,15 @@
 import CustomModal from "@/components/CustomModal";
 import DashboardTab from "@/components/DashboardTab";
 import SelectedOptions from "@/components/SelectedOptions";
-import { useSocket } from "@/services/SocketProvider";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
 const DashboardPage = () => {
   const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
   const [input, setInput] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [showOptions, setShowOptions] = useState("create-group");
   const [activeConversation, setActiveConversation] = useState(null);
-  const socket = useSocket();
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -32,31 +29,31 @@ const DashboardPage = () => {
     setShowOptions("create-group");
   };
 
-  useEffect(() => {
-    // Handle system messages
-    socket.on("user:joined", (data) => {
-      console.log(`User ${data.username} has joined the room ${data.roomKey}!`);
-      console.log(data?.allUsers, "they are in the room");
-      // const uniqueUsers = data?.allUsers.filter(
-      //   (value, index, self) =>
-      //     index ===
-      //     self.findIndex(
-      //       (t) => t.socketId === value.socketId // Ensure uniqueness based on socketId
-      //     )
-      // );
+  // useEffect(() => {
+  //   // Handle system messages
+  //   socket.on("user:joined", (data) => {
+  //     console.log(`User ${data.username} has joined the room ${data.roomKey}!`);
+  //     console.log(data?.allUsers, "they are in the room");
+  //     // const uniqueUsers = data?.allUsers.filter(
+  //     //   (value, index, self) =>
+  //     //     index ===
+  //     //     self.findIndex(
+  //     //       (t) => t.socketId === value.socketId // Ensure uniqueness based on socketId
+  //     //     )
+  //     // );
 
-      // setUsers(uniqueUsers);
-    });
+  //     // setUsers(uniqueUsers);
+  //   });
 
-    // socket.on("reciveMessages", (data) => {
-    //   console.log(data, "recived messages");
-    //   setMessages(data.messages);
-    // });
+  //   // socket.on("reciveMessages", (data) => {
+  //   //   console.log(data, "recived messages");
+  //   //   setMessages(data.messages);
+  //   // });
 
-    return () => {
-      socket.off("user:joined");
-    };
-  }, [socket]);
+  //   return () => {
+  //     socket.off("user:joined");
+  //   };
+  // }, [socket]);
 
   return (
     <div className="flex h-screen max-w-[96rem] mx-auto ">

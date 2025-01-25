@@ -10,9 +10,6 @@ const DashboardTab = ({ handleStartConversation, handleSelectOption }) => {
   const [activeTab, setActiveTab] = useState("groups");
   const [allUsers, setAllUsers] = useState([]);
   const { groupsList } = useGetUserGroupsList();
-  //console.log(groupsList, "groupsList");
-
-  console.log(groupsList, "groupsList");
 
   return (
     <div className="w-full max-w-md mx-auto  border-r border-r-gray-200 bg-white">

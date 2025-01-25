@@ -9,11 +9,8 @@ export const loginRequest = async (payload) => {
 };
 
 // Function to fetch all users data
-export const getAllGroups = async (payload) => {
-  const response = await axiosInstance.get(`/group/all/${payload.userId}`);
-
-  console.log("list response", response);
-
+export const getAllGroups = async () => {
+  const response = await axiosInstance.get(`/group/all`);
   return response.data || response; // Assuming the response contains the data
 };
 
