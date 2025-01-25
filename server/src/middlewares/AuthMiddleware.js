@@ -7,16 +7,18 @@ const verifyUserToken = async (req, res, next) => {
   console.log("AuthMiddleware => verifyUserToken");
   let usertoken = req.headers.authorization;
 
+  // console.log(req.headers, "usertoken");
+
   try {
     if (usertoken) {
       let tokens = usertoken.split(" ");
-
       let token = tokens[1];
       // console.log("Token", token)
       let payload = jwt.verify(token, JWTSECRET);
+      // console.log(payload, "tokren pay");
 
-      let user = await User.findOne({
-        _id: payload.userId,
+      let user = await User.findById({
+        _id: payload._id,
       });
 
       //checking user must exist in our DB else throwing error
@@ -39,6 +41,4 @@ const verifyUserToken = async (req, res, next) => {
   }
 };
 
-return {
-  verifyUserToken,
-};
+export { verifyUserToken };

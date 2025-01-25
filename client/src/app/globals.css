@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --background: #1A3636
+  --background: white
   --foreground: #6559a2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1A3636;
+    --background: white;
     --foreground: #6559a2;
    
   }
@@ -20,3 +20,18 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* styles/globals.css */
+::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #271342; /* Scrollbar thumb color (blue) */
+  border-radius: 3px; /* Rounded edges for the thumb */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #d1d5db; /* Scrollbar track color (light gray) */
+}
+

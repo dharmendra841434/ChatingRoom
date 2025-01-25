@@ -1,32 +1,49 @@
 import { useState } from "react";
 import { IoCheckmarkDoneCircleSharp } from "react-icons/io5";
+import { IoMdCloseCircle } from "react-icons/io";
+import { checkUsernameRequest } from "@/hooks/ApiRequiests/userApi";
+import { useMutation } from "@tanstack/react-query";
 
 function UserNameInput({ setInput }) {
   const [userName, setUserName] = useState("");
   const [isChecking, setIsChecking] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(null);
+  const { mutate: checkUsername } = useMutation({
+    mutationFn: (payload) => checkUsernameRequest(payload), // Call the function to create a new group
+    onSuccess: (data) => {
+      if (data?.data?.isAvailable) {
+        setIsAvailable(true);
+        // alert("Username available");
+        setIsChecking(false);
+        setInput(userName);
+      } else {
+        setIsAvailable(false);
+        //alert("Username not available");
+        setIsChecking(false);
+        setInput("");
+      }
+    },
+    onError: (error) => {
+      console.log(error, "error");
+    },
+  });
 
   const checkUserNameAvailability = async (name) => {
     setIsChecking(true);
-    setIsAvailable(false);
-
-    // Simulating API check with a timeout
     setTimeout(() => {
-      setIsChecking(false);
-      // Simulating a condition where usernames with "valid" are available
-      setIsAvailable(true);
-    }, 1500);
+      // console.log(name, "name");
+      checkUsername({ username: name });
+    }, 2000);
   };
 
   const handleChange = (e) => {
     const name = e.target.value;
     setUserName(name);
-    setInput(name);
-    if (name?.length > 3) {
+    if (name?.length > 2) {
       checkUserNameAvailability(name);
     } else {
       setIsChecking(false);
-      setIsAvailable(false);
+      setIsAvailable(null);
     }
   };
 
@@ -39,7 +56,7 @@ function UserNameInput({ setInput }) {
           placeholder="Enter your name"
           value={userName}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-md focus:ring-1 focus:ring-foreground outline-none mb-4"
+          className="w-full px-4 py-2 text-gray-900 border rounded-md focus:ring-1 focus:ring-foreground outline-none mb-4"
         />
         <div className="absolute right-3 top-2.5">
           {isChecking ? (
@@ -57,7 +74,17 @@ function UserNameInput({ setInput }) {
               />
             </svg>
           ) : (
-            isAvailable && <IoCheckmarkDoneCircleSharp className=" text-xl" />
+            <>
+              {isAvailable !== null && (
+                <>
+                  {isAvailable ? (
+                    <IoCheckmarkDoneCircleSharp className=" text-green-600 text-xl" />
+                  ) : (
+                    <IoMdCloseCircle className=" text-red-600 text-xl" />
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       </div>

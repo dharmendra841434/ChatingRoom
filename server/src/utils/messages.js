@@ -22,6 +22,14 @@ const messages = (lang = "en") => {
   const user_not_found = {
     en: "user detail not found!",
   };
+
+  const groups_not_found = {
+    en: "You have not created any groups yet!",
+  };
+
+  const group_not_found = {
+    en: "This group does not exist!",
+  };
   const username_not_found = {
     en: "Useraneme not found!",
   };
@@ -49,6 +57,8 @@ const messages = (lang = "en") => {
     ac_deleted: ac_deleted[lang],
     incorrect_password: incorrect_password[lang],
     username_not_found: username_not_found[lang],
+    groups_not_found: groups_not_found[lang],
+    group_not_found: group_not_found[lang],
   };
 };
 

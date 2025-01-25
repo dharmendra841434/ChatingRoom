@@ -33,7 +33,7 @@ const Home = () => {
   // };
 
   return (
-    <div className=" min-h-screen max-w-[80rem] mx-auto">
+    <div className=" min-h-screen max-w-[96rem] mx-auto bg-darkGreen px-5">
       <div className=" py-2">
         <img src="ChatingApp.webp" alt="logo" className=" w-44" />
       </div>

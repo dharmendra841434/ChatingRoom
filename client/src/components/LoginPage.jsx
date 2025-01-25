@@ -3,25 +3,24 @@
 import React, { useState } from "react";
 import UserNameInput from "./UserNameInput";
 import PasswordInput from "./PasswordInput";
-import useLoginUser from "@/hooks/useLogin";
+import useLoginUser from "@/hooks/authenticationHooks/useLogin";
 
 const LoginPage = ({ setActiveTab }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { loginUser, successData, loginLoading, loginIsError, loginError } =
-    useLoginUser();
+  const { loginUser, success, isLoading, LoginError } = useLoginUser();
 
   const handleLogin = (e) => {
     e.preventDefault();
+    // console.log(isLoading, "is success");
     loginUser({
       data: {
         username,
         password,
       },
     });
+    console.log(success, "success");
   };
-
-  console.log(successData, "is success");
 
   return (
     <div>
@@ -32,7 +31,13 @@ const LoginPage = ({ setActiveTab }) => {
         </p>
       </div>
       <form onSubmit={handleLogin}>
-        <UserNameInput setInput={setUsername} />
+        <label className="block mb-2 text-gray-700">Username</label>
+        <input
+          type="text"
+          placeholder="Enter your name"
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full px-4 py-2 border text-gray-900 rounded-md focus:ring-1 focus:ring-foreground outline-none mb-4"
+        />
         <PasswordInput setPassword={setPassword} password={password} />
         <button
           type="submit"

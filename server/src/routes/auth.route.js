@@ -14,6 +14,6 @@ router.get("/health", (req, res) => {
 
 router.route("/register").post(registerUser, responseMiddleware);
 router.route("/login").post(login, responseMiddleware);
-router.route("/check-username").post(checkUsername, responseMiddleware);
+router.route("/check-usernames").post(checkUsername, responseMiddleware);
 
 export default router;

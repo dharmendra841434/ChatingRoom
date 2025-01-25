@@ -2,16 +2,17 @@
 import mongoose, { Schema } from "mongoose";
 
 // Define MongoDB schemas and models
-const RoomSchema = new mongoose.Schema({
-  roomKey: { type: String, required: true, unique: true },
+const GroupSchema = new mongoose.Schema({
+  groupKey: { type: String, required: true, unique: true },
+  groupName: { type: String, required: true },
   allUsers: {
     type: [
       {
-        username: { type: String, required: true },
-        socketId: { type: String, required: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, required: true },
       },
     ],
-    default: [], // Default value is an empty array
+    default: [],
+    _id: false,
   },
   messages: [
     {
@@ -23,6 +24,6 @@ const RoomSchema = new mongoose.Schema({
   owner: { type: String, required: true },
 });
 
-const Room = mongoose.model("Room", RoomSchema);
+const Group = mongoose.model("groups", GroupSchema);
 
-export default Room;
+export default Group;

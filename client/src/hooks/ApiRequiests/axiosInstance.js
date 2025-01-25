@@ -1,19 +1,21 @@
 import axios from "axios";
 import Cookies from "js-cookie"; // Client-side cookie management
+//import { cookies } from "next/headers";
+
+const Url =
+  process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL_LOCAL;
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+  baseURL: Url,
 });
 
 // Request interceptor
 axiosInstance.interceptors.request.use(
-  (config) => {
+  async (config) => {
     let token;
-
     // Check if running on the client side
     if (typeof window !== "undefined") {
-      token = Cookies.get("accessToken"); // Get the token from cookies on the client side
-      console.log(token, "this is token from instance");
+      token = localStorage.getItem("token");
     } else {
       // If running on the server, the token needs to be retrieved differently
       console.warn(

@@ -19,11 +19,15 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }) => {
   const socketConnection = useMemo(() => {
+    const socketUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL ||
+      process.env.NEXT_PUBLIC_SOCKET_URL_LOCAL;
     if (!socket) {
-      socket = io("https://chatingroom.onrender.com", {
+      socket = io(socketUrl, {
         transports: ["websocket"], // Optional: Force WebSocket
       });
     }
+
     return socket;
   }, []);
 

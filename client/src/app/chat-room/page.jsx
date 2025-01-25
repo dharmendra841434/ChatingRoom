@@ -1,89 +1,157 @@
 "use client";
 
-import { useSocket } from "@/services/SocketProvider";
-import React, { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 
-const ChatScreen = () => {
-  const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [input, setInput] = useState("");
-  const [roomName, setRoomName] = useState("");
-  const socket = useSocket();
+const Squares = ({
+  direction = "right",
+  speed = 1,
+  borderColor = "#9DB2BF",
+  squareSize = 50,
+  hoverFillColor = "#222",
+}) => {
+  const canvasRef = useRef(null);
+  const requestRef = useRef(null);
+  const numSquaresX = useRef();
+  const numSquaresY = useRef();
+  const gridOffset = useRef({ x: 0, y: 0 });
+  const [hoveredSquare, setHoveredSquare] = useState(null);
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (input.trim()) {
-      setMessages((prev) => [...prev, { sender: "You", text: input }]);
-      setInput("");
-      // socket.emit("sendMessage", {
-      //   room: roomName,
-      //   message: messages,
-      //   sender: "demo user",
-      // });
-    }
-  };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    const resizeCanvas = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
+      numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+    };
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const drawGrid = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const startX = Math.floor(gridOffset.current.x / squareSize) * squareSize;
+      const startY = Math.floor(gridOffset.current.y / squareSize) * squareSize;
+
+      for (let x = startX; x < canvas.width + squareSize; x += squareSize) {
+        for (let y = startY; y < canvas.height + squareSize; y += squareSize) {
+          const squareX = x - (gridOffset.current.x % squareSize);
+          const squareY = y - (gridOffset.current.y % squareSize);
+
+          if (
+            hoveredSquare &&
+            Math.floor((x - startX) / squareSize) === hoveredSquare.x &&
+            Math.floor((y - startY) / squareSize) === hoveredSquare.y
+          ) {
+            ctx.fillStyle = hoverFillColor;
+            ctx.fillRect(squareX, squareY, squareSize, squareSize);
+          }
+
+          ctx.strokeStyle = borderColor;
+          ctx.strokeRect(squareX, squareY, squareSize, squareSize);
+        }
+      }
+
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2)) / 2
+      );
+      gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+      gradient.addColorStop(1, "#060606");
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    };
+
+    const updateAnimation = () => {
+      const effectiveSpeed = Math.max(speed, 0.05);
+      switch (direction) {
+        case "right":
+          gridOffset.current.x =
+            (gridOffset.current.x - effectiveSpeed + squareSize) % squareSize;
+          break;
+        case "left":
+          gridOffset.current.x =
+            (gridOffset.current.x + effectiveSpeed + squareSize) % squareSize;
+          break;
+        case "up":
+          gridOffset.current.y =
+            (gridOffset.current.y + effectiveSpeed + squareSize) % squareSize;
+          break;
+        case "down":
+          gridOffset.current.y =
+            (gridOffset.current.y - effectiveSpeed + squareSize) % squareSize;
+          break;
+        case "diagonal":
+          gridOffset.current.x =
+            (gridOffset.current.x - effectiveSpeed + squareSize) % squareSize;
+          gridOffset.current.y =
+            (gridOffset.current.y - effectiveSpeed + squareSize) % squareSize;
+          break;
+        default:
+          break;
+      }
+
+      drawGrid();
+      requestRef.current = requestAnimationFrame(updateAnimation);
+    };
+
+    // Track mouse hover
+    const handleMouseMove = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const startX = Math.floor(gridOffset.current.x / squareSize) * squareSize;
+      const startY = Math.floor(gridOffset.current.y / squareSize) * squareSize;
+
+      const hoveredSquareX = Math.floor(
+        (mouseX + gridOffset.current.x - startX) / squareSize
+      );
+      const hoveredSquareY = Math.floor(
+        (mouseY + gridOffset.current.y - startY) / squareSize
+      );
+
+      setHoveredSquare({ x: hoveredSquareX, y: hoveredSquareY });
+    };
+
+    const handleMouseLeave = () => {
+      setHoveredSquare(null);
+    };
+
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseleave", handleMouseLeave);
+
+    requestRef.current = requestAnimationFrame(updateAnimation);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      cancelAnimationFrame(requestRef.current);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [
+    direction,
+    speed,
+    borderColor,
+    hoverFillColor,
+    hoveredSquare,
+    squareSize,
+  ]);
 
   return (
-    <div className="flex h-screen">
-      {/* User List */}
-      <div className="w-1/4 bg-gray-100 border-r border-gray-300">
-        <h2 className="text-lg font-semibold p-4 border-b border-gray-700">
-          Users
-        </h2>
-        <ul>
-          {users.map((user, index) => (
-            <li
-              key={index}
-              className="p-4 hover:bg-gray-200 cursor-pointer border-b border-gray-300"
-            >
-              {user}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Chat Section */}
-      <div className="w-3/4 flex flex-col">
-        {/* Messages */}
-        <div className="flex-grow p-4 bg-white overflow-y-auto">
-          {messages.length === 0 ? (
-            <p className="text-gray-500 text-center mt-4">No messages yet</p>
-          ) : (
-            messages.map((message, index) => (
-              <div
-                key={index}
-                className={`p-3 mb-2 rounded-lg ${
-                  message.sender === "You"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-gray-100"
-                }`}
-              >
-                <strong>{message.sender}</strong>: {message.text}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Input */}
-        <div className="p-2 border-t border-gray-300">
-          <form onSubmit={handleSendMessage} className="flex">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
-              className="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              type="submit"
-              className="p-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600"
-            >
-              Send
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="w-full h-screen border-none block"
+    ></canvas>
   );
 };
-export default ChatScreen;
+
+export default Squares;

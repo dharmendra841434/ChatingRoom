@@ -1,21 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { loginRequest } from "./ApiRequiests/userApi";
+import { loginRequest } from "../ApiRequiests/userApi";
 
 const useLoginUser = () => {
-  const navigate = useRouter();
+  const router = useRouter();
   const {
     mutate: loginUser,
-    data: successData,
-    isLoading: loginLoading,
-    isError: loginIsError,
-    error: loginError,
+    data: success,
+    isPending: isLoading,
+    error: LoginError,
   } = useMutation({
-    mutationFn: ({ data }) => {
-      loginRequest(data);
-    },
-    onSuccess: () => {
+    mutationFn: ({ data }) => loginRequest(data),
+    onSuccess: (data) => {
       toast.success("User logged in successfully!", {
         position: "top-center",
         autoClose: 3000,
@@ -27,7 +24,9 @@ const useLoginUser = () => {
         theme: "colored",
       });
 
-      navigate.replace("/dashboard");
+      console.log(data, "data");
+      localStorage.setItem("token", data?.data?.token);
+      router.push("/dashboard");
     },
     onError: (error) => {
       toast.error(`login failed: ${error.message}`, {
@@ -42,8 +41,9 @@ const useLoginUser = () => {
       });
     },
   });
+  //console.log(mutated, "mutate");
 
-  return { loginUser, successData, loginLoading, loginIsError, loginError };
+  return { loginUser, success, isLoading, LoginError };
 };
 
 export default useLoginUser;

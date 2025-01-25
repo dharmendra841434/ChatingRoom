@@ -25,6 +25,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SocketProvider>{children}</SocketProvider>
+        <div id="modal"></div>
       </body>
     </html>
   );
