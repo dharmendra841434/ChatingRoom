@@ -12,6 +12,7 @@ async function checkRoom(roomKey) {
     }
 
     const result = await response.json();
+    //kidfyeufe
 
     return result.isExist;
   } catch (error) {
