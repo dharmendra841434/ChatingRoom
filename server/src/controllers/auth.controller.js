@@ -23,10 +23,10 @@ const login = async (req, res, next) => {
       const token = resp.generateJWTToken();
       const cookieOptions = {
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week in milliseconds
-        secure: process.env.NODE_ENV === "production", // Secure only in production
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        secure: true,
         sameSite: "None",
-        // sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax", // Strict in production, Lax for local testing
+        domain: ".vercel.app", // Shared across all subdomains
       };
 
       res.cookie("accessToken", token, cookieOptions);

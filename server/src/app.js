@@ -33,9 +33,9 @@ DBConnector();
 
 const corsConfig = {
   origin: ["http://localhost:3000", "https://chating-room.vercel.app"],
-  methods: ["GET", "POST"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE"], // Include all HTTP methods you expect to use
+  credentials: true, // Allow cookies to be sent/received
+  allowedHeaders: ["Content-Type", "Authorization"], // Specify headers you allow
 };
 
 app.use(cors(corsConfig));

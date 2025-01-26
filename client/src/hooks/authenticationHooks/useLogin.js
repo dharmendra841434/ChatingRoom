@@ -24,10 +24,11 @@ const useLoginUser = () => {
         theme: "colored",
       });
 
-      console.log(data, "data");
+      // console.log(data, "data");
       localStorage.setItem("token", data?.data?.token);
       //cookies.set("accessToken", data?.data?.token);
       router.push("/dashboard");
+      console.log("navigate to dashboard");
     },
     onError: (error) => {
       toast.error(`login failed: ${error.message}`, {
