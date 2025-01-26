@@ -26,6 +26,7 @@ const useLoginUser = () => {
 
       console.log(data, "data");
       localStorage.setItem("token", data?.data?.token);
+      //cookies.set("accessToken", data?.data?.token);
       router.push("/dashboard");
     },
     onError: (error) => {
