@@ -25,6 +25,7 @@ const login = async (req, res, next) => {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week in milliseconds
         secure: process.env.NODE_ENV === "production", // Secure only in production
+        sameSite: "None",
         // sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax", // Strict in production, Lax for local testing
       };
 
