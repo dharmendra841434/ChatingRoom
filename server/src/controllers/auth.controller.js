@@ -24,8 +24,9 @@ const login = async (req, res, next) => {
       const cookieOptions = {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-        secure: true,
-        sameSite: "None",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
+        domain: process.env.NODE_ENV === "production" && ".onrender.com",
       };
 
       res.cookie("accessToken", token, cookieOptions);
