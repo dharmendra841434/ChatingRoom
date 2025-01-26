@@ -26,7 +26,6 @@ const login = async (req, res, next) => {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
         secure: true,
         sameSite: "None",
-        domain: ".vercel.app", // Shared across all subdomains
       };
 
       res.cookie("accessToken", token, cookieOptions);
