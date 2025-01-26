@@ -5,7 +5,7 @@ import RegisterPage from "@/components/RegisterPage";
 import React, { useState } from "react";
 
 const Home = () => {
-  const [activeTab, setActiveTab] = useState("register");
+  const [activeTab, setActiveTab] = useState("login");
   // const [roomKey, setRoomKey] = useState("");
   // const [userName, setUserName] = useState("");
   // const router = useRouter();

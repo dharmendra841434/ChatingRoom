@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 function middleware(request) {
   const token = request.cookies.get("accessToken"); // Get the token from the cookies
 
+  console.log(token, "this is token");
+
   const { pathname } = request.nextUrl; // Get the current pathname
 
   // If the user is already on the dashboard and has a token, allow access

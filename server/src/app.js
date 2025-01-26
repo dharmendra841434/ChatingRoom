@@ -35,6 +35,7 @@ const corsConfig = {
   origin: ["http://localhost:3000", "https://chating-room.vercel.app"],
   methods: ["GET", "POST"],
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsConfig));
