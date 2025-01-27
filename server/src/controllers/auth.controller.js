@@ -29,7 +29,7 @@ const login = async (req, res, next) => {
         // domain: process.env.NODE_ENV === "production" && ".onrender.com",
       };
 
-      res.cookie("accessToken", token, cookieOptions);
+      // res.cookie("accessToken", token, cookieOptions);
       req.rData = { token };
     } else {
       req.rCode = 5;

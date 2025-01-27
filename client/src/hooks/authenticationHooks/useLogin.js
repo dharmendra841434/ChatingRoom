@@ -2,9 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { loginRequest } from "../ApiRequiests/userApi";
+import Cookies from "js-cookie";
 
 const useLoginUser = () => {
   const router = useRouter();
+
   const {
     mutate: loginUser,
     data: success,
@@ -27,8 +29,8 @@ const useLoginUser = () => {
       // console.log(data, "data");
       localStorage.setItem("token", data?.data?.token);
       //cookies.set("accessToken", data?.data?.token);
+      Cookies.set("accessToken", data?.data?.token, { expires: 7 });
       router.push("/dashboard");
-      console.log("navigate to dashboard");
     },
     onError: (error) => {
       toast.error(`login failed: ${error.message}`, {

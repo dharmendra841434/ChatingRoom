@@ -8,6 +8,7 @@ import useLoginUser from "@/hooks/authenticationHooks/useLogin";
 const LoginPage = ({ setActiveTab }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const { loginUser, success, isLoading, LoginError } = useLoginUser();
 
   const handleLogin = (e) => {
@@ -41,9 +42,10 @@ const LoginPage = ({ setActiveTab }) => {
         <PasswordInput setPassword={setPassword} password={password} />
         <button
           type="submit"
+          disabled={isLoading}
           className="w-full  bg-foreground text-white py-2 rounded-md hover:bg-purple-800"
         >
-          Login
+          {isLoading ? "Loading..." : "Login"}
         </button>
         <div className=" text-sm flex justify-center items-center pt-5 w-full space-x-2 text-gray-400">
           <span>Don't have an account </span>{" "}
