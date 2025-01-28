@@ -11,7 +11,7 @@ function UserNameInput({ setInput }) {
   const { mutate: checkUsername } = useMutation({
     mutationFn: (payload) => checkUsernameRequest(payload), // Call the function to create a new group
     onSuccess: (data) => {
-      if (data?.data?.isAvailable) {
+      if (data?.isAvailable) {
         setIsAvailable(true);
         // alert("Username available");
         setIsChecking(false);

@@ -2,64 +2,115 @@ import mongoose from "mongoose";
 import Group from "../models/group.model.js";
 import { generateRandomString } from "../utils/helper.js";
 
-const getAllGropsOfUser = async (req, res, next) => {
-  const { userId } = req.body;
-  const groups = await Group.find({
-    allUsers: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } },
-  });
+const getAllGroupsOfUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
 
-  req.rCode = 1;
-  req.rData = { groups: groups };
-  next();
-};
-
-const createNewGroup = async (req, res, next) => {
-  console.log(req.body);
-
-  const { userId, groupName } = req.body;
-  let groupKey = generateRandomString(15);
-
-  console.log(
-    `userId: ${userId}, groupName: ${groupName}, groupKey: ${groupKey}`
-  );
-
-  await Group.create({
-    groupKey: groupKey,
-    groupName: groupName,
-    allUsers: [
-      {
-        userId: userId,
-      },
-    ],
-    messages: [],
-    owner: userId,
-  });
-
-  req.rData = { messages: " Group created successfully" };
-
-  next();
-};
-
-const joinGroup = async (req, res, next) => {
-  //console.log(req.body);
-
-  const { userId, groupKey } = req.body;
-
-  const response = await Group.findOneAndUpdate(
-    { groupKey },
-    {
-      $addToSet: { allUsers: { userId } },
+    // Validate input
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
     }
-  );
-  if (response === null) {
-    req.rCode = 5;
-    req.msg = "group_not_found";
-    return next();
-  } else {
-    req.rData = { messages: " User Joined successfully" };
-  }
 
-  next();
+    // Find groups containing the user
+    const groups = await Group.find({
+      allUsers: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } },
+    });
+
+    if (!groups.length) {
+      return res
+        .status(200)
+        .json({ message: "No groups found for the user", data: [] });
+    }
+
+    // Send success response
+    return res.status(200).json({
+      message: " Groups found successfully",
+      data: {
+        groups,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching groups" });
+  }
 };
 
-export { getAllGropsOfUser, createNewGroup, joinGroup };
+const createNewGroup = async (req, res) => {
+  try {
+    const { userId, groupName } = req.body;
+
+    // Validate input
+    if (!userId || !groupName) {
+      return res
+        .status(400)
+        .json({ message: "User ID and Group Name are required" });
+    }
+
+    // Generate a random group key
+    const groupKey = generateRandomString(15);
+
+    console.log(
+      `Creating group: userId: ${userId}, groupName: ${groupName}, groupKey: ${groupKey}`
+    );
+
+    // Create the new group in the database
+    const newGroup = await Group.create({
+      groupKey: groupKey,
+      groupName: groupName,
+      allUsers: [{ userId: userId }],
+      messages: [],
+      owner: userId,
+    });
+
+    // Send success response
+    return res.status(201).json({
+      message: "Group created successfully",
+    });
+  } catch (error) {
+    console.error("Error creating group:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while creating the group" });
+  }
+};
+
+const joinGroup = async (req, res) => {
+  try {
+    const { userId, groupKey } = req.body;
+
+    // Validate input
+    if (!userId || !groupKey) {
+      return res
+        .status(400)
+        .json({ message: "User ID and Group Key are required" });
+    }
+
+    // Find the group and add the user to it
+    const group = await Group.findOneAndUpdate(
+      { groupKey },
+      {
+        $addToSet: { allUsers: { userId } },
+      },
+      { new: true } // Returns the updated group
+    );
+
+    // If the group doesn't exist, send an error response
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Send success response
+    return res.status(200).json({
+      message: "User joined successfully",
+    });
+  } catch (error) {
+    console.error("Error joining group:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while joining the group" });
+  }
+};
+
+export { getAllGroupsOfUser, createNewGroup, joinGroup };

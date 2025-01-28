@@ -42,3 +42,23 @@ export const checkUsernameRequest = async (payload) => {
   const response = await axiosInstance.post(`/auth/check-usernames`, payload);
   return response.data || response; // Assuming the response contains the data
 };
+
+// Function to fetch all users data
+export const getUserProfile = async (username) => {
+  const response = await axiosInstance.get(
+    `/auth/findByUsername?username=${username}`
+  );
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch all users data
+export const findPeoplesRequest = async (query) => {
+  const response = await axiosInstance.get(`/auth/search?query=${query}`);
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch all users data
+export const sendFriendRequest = async (payload) => {
+  const response = await axiosInstance.post(`/auth/send-request`, payload);
+  return response.data || response; // Assuming the response contains the data
+};

@@ -11,6 +11,33 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profile_pic: { type: String, required: true },
     isActive: { type: Boolean, required: true },
+    requests: {
+      type: [
+        {
+          userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        },
+      ],
+      default: [],
+      _id: false,
+    },
+    pendingRequests: {
+      type: [
+        {
+          userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        },
+      ],
+      default: [],
+      _id: false,
+    },
+    friends: {
+      type: [
+        {
+          userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        },
+      ],
+      default: [],
+      _id: false,
+    },
   },
   {
     timestamps: true,

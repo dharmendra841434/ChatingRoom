@@ -3,12 +3,15 @@ import ChatImage from "@/components/ChatImage";
 import CustomModal from "@/components/CustomModal";
 import DashboardTab from "@/components/DashboardTab";
 import SelectedOptions from "@/components/SelectedOptions";
+import ThreeDotOptions from "@/components/ThreeDotOptions";
+import UserProfileCard from "@/components/UserProfile";
+import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
 import useCloudinary from "@/hooks/useCloudinary";
 import { timeAgo } from "@/services/helper";
 import { useSocket } from "@/services/SocketProvider";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineLink } from "react-icons/md";
@@ -24,6 +27,9 @@ const DashboardPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const { url, loading, progress, uploadFile } = useCloudinaryUpload();
   const [isOpenMediaPopup, setIsOpenMediaPopup] = useState(false);
+  const chatContainerRef = useRef(null);
+  const [viewUserProfile, setViewUserProfile] = useState(null);
+  const [threedot, setThreedot] = useState(false);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -99,21 +105,18 @@ const DashboardPage = () => {
     });
   };
 
-  const handleSendFile = () => {
-    if (selectedFile !== null) {
-      const data = new FormData();
-      data.append("file", selectedFile);
-
-      console.log("====================================");
-      console.log(data);
-      console.log("====================================");
-      socket.emit("sendFiles", {
-        groupKey: activeConversation.groupKey,
-        filedata: data,
-        username: userDetails?.data?.username,
-      });
-    }
+  const handleViewProfile = async (username) => {
+    const profile = await getUserProfile(username);
+    setViewUserProfile(profile);
   };
+
+  // Auto-scroll to the bottom when messages change
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (activeConversation !== null) {
@@ -151,6 +154,7 @@ const DashboardPage = () => {
       <DashboardTab
         handleSelectOption={handleOptions}
         handleStartConversation={setActiveConversation}
+        userDetails={userDetails?.data}
       />
       <CustomModal isOpen={isOpenModal} onClose={setIsOpenModal}>
         <div className=" p-6">
@@ -187,6 +191,15 @@ const DashboardPage = () => {
           </button>
         </div>
       </CustomModal>
+
+      <CustomModal
+        isOpen={viewUserProfile !== null}
+        onClose={() => {
+          setViewUserProfile(null);
+        }}
+      >
+        <UserProfileCard user={viewUserProfile} />
+      </CustomModal>
       <div className=" w-3/4 ">
         {activeConversation ? (
           <div className="w-full flex flex-col h-full  ">
@@ -214,13 +227,17 @@ const DashboardPage = () => {
                   </div>
                 </div>
                 <div>
-                  <button>
+                  <button onClick={() => setThreedot(true)}>
                     <BsThreeDotsVertical className=" text-foreground text-lg" />
                   </button>
                 </div>
+                <ThreeDotOptions isOpen={threedot} setIsOpen={setThreedot} />
               </div>
               {/* Messages */}
-              <div className="flex-grow px-3 py-1  overflow-auto ">
+              <div
+                ref={chatContainerRef}
+                className="flex-grow px-3 py-1  overflow-auto "
+              >
                 {messages.length === 0 ? (
                   <p className="text-gray-500 text-center mt-4">
                     No messages yet
@@ -236,16 +253,22 @@ const DashboardPage = () => {
                             : " flex-row "
                         }   mb-1 p-2 rounded-lg w-full`}
                       >
-                        <img
-                          src={
-                            message?.username === userDetails?.data?.username
-                              ? "/defaultDp.webp"
-                              : "/user.png"
-                          }
-                          alt="User Avatar"
-                          className="w-10 h-10 rounded-full cursor-pointer"
-                          title={useGetUserDetails?.data?.username}
-                        />
+                        <button
+                          onClick={() => {
+                            handleViewProfile(message?.username);
+                          }}
+                        >
+                          <img
+                            src={
+                              message?.username === userDetails?.data?.username
+                                ? "/defaultDp.webp"
+                                : "/user.png"
+                            }
+                            alt="User Avatar"
+                            className="w-10 h-10 rounded-full cursor-pointer"
+                            title={useGetUserDetails?.data?.username}
+                          />
+                        </button>
                         {message?.message !== "" ? (
                           <div
                             className={`flex flex-col mx-3  ${

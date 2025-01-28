@@ -1,65 +1,271 @@
+import mongoose from "mongoose";
 import User from "../models/user.model.js";
 
-const registerUser = async (req, res, next) => {
-  const resp = await User.findOne({ username: req?.body.username });
-  if (resp) {
-    req.rCode = 4;
-    req.msg = "user_already_found";
-  } else {
-    const user = new User(req.body);
-    // const token = user.generateJWTToken();
-    await user.save();
-    // res.cookie("accessToken", token, "jywuedsjfsd");
-    req.rData = { messages: " user_registered" };
-  }
-  next();
-};
+const registerUser = async (req, res) => {
+  try {
+    const { username, full_name, password, profile_pic, isActive } = req.body;
 
-const login = async (req, res, next) => {
-  const resp = await User.findOne({ username: req?.body.username });
-  if (resp) {
-    const isMatch = await resp.checkPassword(req?.body.password);
-    if (isMatch) {
-      const token = resp.generateJWTToken();
-      const cookieOptions = {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
-        // domain: process.env.NODE_ENV === "production" && ".onrender.com",
-      };
-
-      // res.cookie("accessToken", token, cookieOptions);
-      req.rData = { token };
-    } else {
-      req.rCode = 5;
-      req.msg = "incorrect_password";
+    // Validate required fields
+    if (!username || !full_name || !password || !profile_pic) {
+      return res.status(400).json({ message: "All fields are required" });
     }
-  } else {
-    req.rCode = 5;
-    req.msg = "username_not_found";
+
+    // Check if the username already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
+
+    // Create a new user
+    const newUser = new User({
+      username,
+      full_name,
+      password,
+      profile_pic,
+      isActive,
+    });
+
+    // Save the user to the database
+    await newUser.save();
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        _id: newUser._id,
+        username: newUser.username,
+        full_name: newUser.full_name,
+        profile_pic: newUser.profile_pic,
+        isActive: newUser.isActive,
+      },
+    });
+  } catch (error) {
+    console.error("Error during user registration:", error);
+    res.status(500).json({ message: "An error occurred during registration" });
   }
-  next();
 };
 
-const checkUsername = async (req, res, next) => {
-  const resp = await User.findOne({ username: req?.body.username });
-  if (resp) {
-    req.rData = { isAvailable: false };
-  } else {
-    req.rData = { isAvailable: true };
+const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Find user by username
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: "Username not found" });
+    }
+
+    // Check if the password matches
+    const isMatch = await user.checkPassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    // Generate JWT token
+    const token = user.generateJWTToken();
+
+    // Configure cookie options
+    // const cookieOptions = {
+    //   httpOnly: true,
+    //   maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
+    // };
+
+    // Set the token in an HTTP-only cookie
+    //res.cookie("accessToken", token, cookieOptions);
+
+    // Send success response
+    res.status(200).json({
+      message: "Login successful",
+      data: {
+        token,
+      },
+    });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).json({ message: "An error occurred during login" });
   }
-  next();
 };
 
-const getDetails = async (req, res, next) => {
-  const response = await User.findById(req?.body?.userId).select("-password");
-  if (response) {
-    req.rData = response;
-  } else {
-    req.rData = { message: "user not found" };
+const checkUsername = async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    // Validate input
+    if (!username) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    // Check if the username exists in the database
+    const existingUser = await User.findOne({ username });
+
+    if (existingUser) {
+      return res
+        .status(200)
+        .json({ isAvailable: false, message: "Username is already taken" });
+    }
+
+    return res
+      .status(200)
+      .json({ isAvailable: true, message: "Username is available" });
+  } catch (error) {
+    console.error("Error checking username availability:", error);
+    res.status(500).json({
+      message: "An error occurred while checking username availability",
+    });
   }
-  next();
 };
 
-export { registerUser, login, checkUsername, getDetails };
+const getDetails = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Validate input
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Find user by ID, excluding the password field
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send user details as a response
+    return res.status(200).json({
+      message: "User details retrieved successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching user details" });
+  }
+};
+
+const searchPeople = async (req, res, next) => {
+  try {
+    const { query, limit = 10 } = req.query;
+    const { userId } = req.body; // Current user ID
+
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter is required" });
+    }
+
+    // Search for users whose username or full_name matches the query (case-insensitive),
+    // excluding the current user
+    const users = await User.find({
+      $and: [
+        {
+          $or: [
+            { username: { $regex: query, $options: "i" } },
+            { full_name: { $regex: query, $options: "i" } },
+          ],
+        },
+        { _id: { $ne: userId } }, // Exclude current user
+        { isActive: true }, // Optional: Include only active users
+      ],
+    })
+      .select("-password") // Exclude the password field
+      .limit(parseInt(limit)); // Limit the number of results
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error searching for users:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while searching for users" });
+  }
+};
+
+const getUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    //console.log(username, "kyfiydu");
+
+    if (!username) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    // Find user by username (case-sensitive, adjust with regex if case-insensitivity is required)
+    const user = await User.findOne({ username }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user by username:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the user" });
+  }
+};
+
+const sendFriendRequest = async (req, res) => {
+  const { userId, targetUserId } = req.body;
+
+  // Validate IDs
+  if (
+    !mongoose.Types.ObjectId.isValid(userId) ||
+    !mongoose.Types.ObjectId.isValid(targetUserId)
+  ) {
+    return res.status(400).json({ error: "Invalid user IDs provided." });
+  }
+
+  try {
+    // Fetch current user and target user
+    const currentUser = await User.findById(userId);
+    const targetUser = await User.findById(targetUserId);
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({ error: "One or both users not found." });
+    }
+
+    // Check if a request already exists
+    const alreadyRequested = currentUser.requests.some(
+      (request) => request.userId.toString() === targetUserId
+    );
+
+    if (alreadyRequested) {
+      return res.status(400).json({ error: "Friend request already sent." });
+    }
+
+    // Update the requests and pendingRequests fields
+    currentUser.requests.push({ userId: targetUserId });
+    targetUser.pendingRequests.push({ userId: userId });
+
+    // Save changes
+    await currentUser.save();
+    await targetUser.save();
+
+    return res.status(200).json({
+      message: "Friend request sent successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: "An error occurred while sending the friend request." });
+  }
+};
+
+export {
+  registerUser,
+  login,
+  checkUsername,
+  getDetails,
+  searchPeople,
+  getUserByUsername,
+  sendFriendRequest,
+};

@@ -36,7 +36,8 @@ const RegisterPage = ({ setActiveTab }) => {
       username: username,
       full_name: fullname,
       password: password,
-      profile_pic: "https://i.pr",
+      profile_pic:
+        "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_640.png",
       isActive: true,
     });
   };
