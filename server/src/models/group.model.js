@@ -14,13 +14,28 @@ const GroupSchema = new mongoose.Schema({
     default: [],
     _id: false,
   },
-  messages: [
-    {
-      username: String,
-      message: String,
-      timestamp: { type: Date, default: Date.now },
-    },
-  ],
+  messages: {
+    type: [
+      {
+        username: String,
+        message: {
+          type: String,
+          default: "",
+        },
+        timestamp: { type: Date, default: Date.now },
+        mediaFile: {
+          mediaType: {
+            type: String,
+          },
+          url: {
+            type: String,
+          },
+        },
+      },
+    ],
+    default: [],
+    _id: false,
+  },
   owner: { type: String, required: true },
 });
 

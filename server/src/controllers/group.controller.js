@@ -8,19 +8,8 @@ const getAllGropsOfUser = async (req, res, next) => {
     allUsers: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } },
   });
 
-  // console.log(groups);
-
-  if (groups.length > 0) {
-    console.log("done");
-
-    req.rCode = 1;
-    req.rData = { groups: groups };
-  } else {
-    console.log("fails");
-
-    req.rCode = 5;
-    req.msg = "groups_not_found";
-  }
+  req.rCode = 1;
+  req.rData = { groups: groups };
   next();
 };
 

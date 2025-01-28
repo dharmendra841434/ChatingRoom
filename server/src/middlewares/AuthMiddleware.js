@@ -13,13 +13,15 @@ const verifyUserToken = async (req, res, next) => {
     if (usertoken) {
       let tokens = usertoken.split(" ");
       let token = tokens[1];
-      // console.log("Token", token)
+      //console.log("Token", token);
       let payload = jwt.verify(token, JWTSECRET);
-      // console.log(payload, "tokren pay");
+      //console.log(payload, "tokren pay");
 
       let user = await User.findById({
         _id: payload._id,
       });
+
+      // console.log(user, "user");
 
       //checking user must exist in our DB else throwing error
       if (user) {
@@ -33,7 +35,7 @@ const verifyUserToken = async (req, res, next) => {
       throw new Error("invalid_token");
     }
   } catch (ex) {
-    // console.log("heres",ex)
+    console.log("heres", ex);
     req.rCode = 3;
     req.msg = "invalid_token";
     if (ex.message == "ac_deactivated") req.msg = ex.message;

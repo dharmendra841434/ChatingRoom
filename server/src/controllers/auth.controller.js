@@ -52,4 +52,14 @@ const checkUsername = async (req, res, next) => {
   next();
 };
 
-export { registerUser, login, checkUsername };
+const getDetails = async (req, res, next) => {
+  const response = await User.findById(req?.body?.userId).select("-password");
+  if (response) {
+    req.rData = response;
+  } else {
+    req.rData = { message: "user not found" };
+  }
+  next();
+};
+
+export { registerUser, login, checkUsername, getDetails };

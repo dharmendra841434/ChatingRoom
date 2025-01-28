@@ -45,66 +45,31 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   // Join a chat room
-  socket.on("joinGroup", async ({ groupKey, owner, username, groupName }) => {
-    //console.log(`User ${username} (${socket.id}) joined room ${roomKey}`);
+  socket.on("joinGroup", async ({ groupKey, username }) => {
+    console.log(`User ${username} joined room ${groupKey}`);
     socket.join(groupKey);
-
-    // Find the room and determine if it exists
-    let group = await Group.findOne({ groupKey });
-
-    if (!group) {
-      // If the room doesn't exist, create it and add the owner to allUsers
-      console.log(`group ${groupKey} created by ${owner}`);
-      group = new Group({
-        groupKey,
-        groupName,
-        owner,
-        allUsers: [{ username, socketId: socket.id }], // Add the owner as the first user
-      });
-      await group.save();
-    } else {
-      // Update user's socketId if they already exist, otherwise add them
-      const userExists = group.allUsers.some(
-        (user) => user.username === username
-      );
-
-      if (userExists) {
-        // Update the socketId of the existing user
-        await Group.updateOne(
-          { groupKey, "allUsers.username": username },
-          { $set: { "allUsers.$.socketId": socket.id } }
-        );
-      } else {
-        // Add the new user to the allUsers array
-        await Group.updateOne(
-          { groupKey },
-          {
-            $addToSet: { allUsers: { username, socketId: socket.id } },
-          }
-        );
-      }
-    }
-
-    // Emit the updated user list to all users in the room
-    const updatedGroup = await Group.findOne({ groupKey }); // Retrieve the updated room data
-    io.to(groupKey).emit("user:joined", {
-      username,
-      allUsers: updatedGroup.allUsers, // Send the updated list of users
+    // Emit a message to the user that they have joined the room
+    const group = await Group.findOne({ groupKey });
+    socket.emit("joinedGroup", {
+      message: `Welcome to the group ${groupKey}! `,
+      messages: group?.messages,
     });
   });
 
   // Handle chat messages
-  socket.on("chatMessage", async ({ groupKey, message, username }) => {
-    console.log(`Message from ${username} in room ${groupKey}: ${message}`);
+  socket.on(
+    "chatMessage",
+    async ({ groupKey, message = "", username, mediaFile = null }) => {
+      console.log(`Message from ${username} in room ${groupKey}: ${message}`);
+      const group = await Group.findOne({ groupKey });
+      if (group) {
+        group.messages.push({ username, message, mediaFile });
+        await group.save();
+      }
 
-    const group = await Group.findOne({ groupKey });
-    if (group) {
-      group.messages.push({ username, message });
-      await group.save();
+      io.to(groupKey).emit("reciveMessages", { messages: group?.messages });
     }
-
-    io.to(groupKey).emit("reciveMessages", { messages: group?.messages });
-  });
+  );
 
   // Handle disconnections
   socket.on("disconnect", async () => {

@@ -115,7 +115,7 @@ const DashboardTab = ({ handleStartConversation, handleSelectOption }) => {
             </div>
             <div className=" px-3 h-[80%]">
               <h3 className=" font-bold text-gray-900 my-3">All Groups</h3>
-              <div className=" h-full overflow-y-scroll">
+              <div className=" h-full  overflow-y-scroll">
                 {groupsList?.length === 0 ? (
                   <div className=" w-full h-full  flex flex-col items-center justify-center">
                     <p>You have no Any groups ?</p>
@@ -138,13 +138,19 @@ const DashboardTab = ({ handleStartConversation, handleSelectOption }) => {
                             <h2 className=" font-semibold text-gray-800 capitalize ">
                               {group.groupName}
                             </h2>
-                            <p className="text-sm text-gray-600">
+                            {/* <p className="text-sm text-gray-600">
                               <span className="">Invite By Group ID:</span>{" "}
                               {group.groupKey}
-                            </p>
-                            <p className="text-sm text-gray-600">
+                            </p> */}
+                            {/* <p className="text-sm text-gray-600">
                               <span className="">Total Users:</span>{" "}
                               {group.allUsers?.length}
+                            </p> */}
+                            <p className="text-xs my-2 text-gray-600 ">
+                              {
+                                group?.messages[group.messages?.length - 1]
+                                  ?.message
+                              }
                             </p>
                           </div>
                         </div>

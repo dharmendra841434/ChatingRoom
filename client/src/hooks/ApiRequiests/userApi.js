@@ -14,6 +14,12 @@ export const getAllGroups = async () => {
   return response.data || response; // Assuming the response contains the data
 };
 
+// Function to fetch all users data
+export const getUserDetails = async () => {
+  const response = await axiosInstance.get(`/auth/user-details`);
+  return response.data || response; // Assuming the response contains the data
+};
+
 // Function to create a new group
 export const createGroupRequest = async (payload) => {
   const response = await axiosInstance.post(`/group/create`, payload);
