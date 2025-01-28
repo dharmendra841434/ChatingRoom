@@ -33,10 +33,18 @@ const DashboardPage = () => {
         groupKey: activeConversation.groupKey,
         username: userDetails?.data?.username,
       };
-      socket.emit("chatMessage", data);
 
-      // setMessages((prev) => [...prev, { sender: userDetails.username, text: input }]);
-      // setInput("");
+      const newMessage = {
+        username: userDetails?.data?.username,
+        message: input,
+        mediaFile: null,
+        timestamp: new Date().toISOString(), // Use current timestamp
+      };
+
+      // Add the new message object to the state
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      socket.emit("chatMessage", data);
+      setInput("");
     }
   };
   const handleOptions = (option) => {
