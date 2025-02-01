@@ -1,8 +1,10 @@
 import {
+  cancelSendFriendRequest,
   findPeoplesRequest,
   sendFriendRequest,
 } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 
 const UserSearch = () => {
@@ -10,6 +12,7 @@ const UserSearch = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const { userDetails, isLoading, isError, error } = useGetUserDetails();
+  const queryClient = useQueryClient(); // Get the query client instance
 
   // Debounce function
   useEffect(() => {
@@ -43,9 +46,37 @@ const UserSearch = () => {
   const handleSendFriendRequest = async (userId) => {
     // Implement the logic to send a friend request
     console.log(`Friend request sent to user with ID: ${userId}`);
-    const response = await sendFriendRequest({ targetUserId: userId });
-    // console.log(response);
+
+    if (
+      userDetails?.data?.sendedRequestsUsers?.some(
+        (item) => item?._id === userId
+      )
+    ) {
+      console.log("cancel");
+
+      await cancelSendFriendRequest({ targetUserId: userId })
+        .then((result) => {
+          console.log(result);
+          queryClient.invalidateQueries(["userDetails"]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      console.log("send");
+      await sendFriendRequest({ targetUserId: userId })
+        .then((result) => {
+          console.log(result);
+          queryClient.invalidateQueries(["userDetails"]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      // console.log(response);
+    }
   };
+
+  // console.log(userDetails?.data?.sendedRequestsUsers);
 
   return (
     <div className="flex flex-col items-center w-[22rem]">
@@ -91,8 +122,8 @@ const UserSearch = () => {
                     onClick={() => handleSendFriendRequest(user._id)}
                     className="px-4 py-2 text-sm font-medium text-white bg-foreground rounded-md hover:bg-purple-700 "
                   >
-                    {userDetails?.data?.requests?.some(
-                      (item) => item?.userId === user?._id
+                    {userDetails?.data?.sendedRequestsUsers?.some(
+                      (item) => item?._id === user?._id
                     )
                       ? "Cancel Request"
                       : "Send Request"}

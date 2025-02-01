@@ -62,3 +62,27 @@ export const sendFriendRequest = async (payload) => {
   const response = await axiosInstance.post(`/auth/send-request`, payload);
   return response.data || response; // Assuming the response contains the data
 };
+
+// Function to fetch all users data
+export const cancelSendFriendRequest = async (payload) => {
+  const response = await axiosInstance.post(
+    `/auth/cancel-sended-request`,
+    payload
+  );
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch all users data
+export const acceptFriendRequest = async (payload) => {
+  const response = await axiosInstance.post(`/auth/accept-request`, payload);
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch all users data
+export const cancelRecivedFriendRequest = async (payload) => {
+  const response = await axiosInstance.post(
+    `/auth/cancel-recieved-request`,
+    payload
+  );
+  return response.data || response; // Assuming the response contains the data
+};

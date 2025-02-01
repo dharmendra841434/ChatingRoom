@@ -26,7 +26,7 @@ const DashboardTab = ({
     router.push("/");
   };
 
-  // console.log(groupsList, "jgjgghgh");
+  //console.log(userDetails, "jgjgghgh");
 
   return (
     <div className="w-full max-w-md mx-auto  border-r border-r-gray-200 bg-white">
@@ -88,7 +88,7 @@ const DashboardTab = ({
       <div className="h-[82%]">
         {activeTab === "users" && (
           <div className="text-gray-700 h-full bg-gray-100">
-            <div className=" flex items-center justify-center py-4">
+            <div className=" flex items-center justify-center py-4 px-3 space-x-2">
               <button
                 onClick={() => {
                   handleSelectOption("find-people");
@@ -98,17 +98,38 @@ const DashboardTab = ({
                 <GoSearch className=" text-2xl" />
                 <p>Search People</p>
               </button>
+              <button
+                onClick={() => {
+                  handleSelectOption("revieved-requist");
+                }}
+                className=" flex flex-row items-center justify-center space-x-1 border border-foreground rounded-lg px-3 py-1"
+              >
+                <p>Recieved Requests</p>
+              </button>
             </div>
 
             <div className=" px-3 h-[85%]">
               <h3 className=" font-bold text-gray-900">All Peoples</h3>
               <div className=" h-full">
-                {allUsers?.length === 0 ? (
+                {userDetails?.allFriends?.length === 0 ? (
                   <div className=" w-full h-full  flex flex-col items-center justify-center">
                     <p>You have no Any People added yet ?</p>
                   </div>
                 ) : (
-                  <div>list</div>
+                  <div className=" h-full w-full ">
+                    {userDetails?.allFriends?.map((friend, idx) => (
+                      <div
+                        key={idx}
+                        className=" flex flex-row  space-x-2 py-2 bg-white rounded-lg drop-shadow-md p-2 cursor-pointer my-2"
+                      >
+                        <img
+                          src={friend?.profile_pic}
+                          className=" h-12 w-12 rounded-full"
+                        />
+                        <h1>{friend?.full_name}</h1>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -201,12 +222,12 @@ const DashboardTab = ({
           <div className=" flex flex-row items-center justify-between space-x-3  h-fit p-2 ">
             <div className=" flex flex-row items-center space-x-3">
               <img
-                src={userDetails?.profile_pic}
+                src={userDetails?.user?.profile_pic}
                 alt="dp"
                 className=" h-8 w-8 rounded-full "
               />
               <p className=" capitalize text-gray-700 font-medium">
-                {userDetails?.full_name}
+                {userDetails?.user?.full_name}
               </p>
             </div>
             <button onClick={handleLogout}>
