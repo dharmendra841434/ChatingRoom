@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profile_pic: { type: String, required: true },
     isActive: { type: Boolean, required: true },
-    requests: {
+    sendedRequests: {
       type: [
         {
           userId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema(
       default: [],
       _id: false,
     },
-    pendingRequests: {
+    recivedRequests: {
       type: [
         {
           userId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -62,7 +62,7 @@ UserSchema.methods.generateJWTToken = function () {
     },
     process.env.JWTSECRET,
     {
-      expiresIn: "1day",
+      expiresIn: "7d",
     }
   );
 };

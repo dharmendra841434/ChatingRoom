@@ -134,10 +134,47 @@ const getDetails = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Fetch request users in parallel
+    const sendedRequestsUsers = await Promise.all(
+      user.sendedRequests?.map((requesterId) =>
+        User.findById(requesterId?.userId).select(
+          "-password -sendedRequests -recivedRequests -updatedAt -createdAt"
+        )
+      ) || []
+    );
+
+    // Fetch pending request users in parallel
+    const recivedRequestsUsers = await Promise.all(
+      user.recivedRequests?.map((requesterId) =>
+        User.findById(requesterId?.userId).select(
+          "-password -sendedRequests -recivedRequests -updatedAt -createdAt"
+        )
+      ) || []
+    );
+
+    // Fetch pending request users in parallel
+    const allFriends = await Promise.all(
+      user.friends?.map((requesterId) =>
+        User.findById(requesterId?.userId).select(
+          "-password -sendedRequests -recivedRequests -updatedAt -createdAt"
+        )
+      ) || []
+    );
+
     // Send user details as a response
     return res.status(200).json({
       message: "User details retrieved successfully",
-      data: user,
+      data: {
+        user: {
+          username: user.username,
+          full_name: user?.full_name,
+          profile_pic: user?.profile_pic,
+          isActive: user?.isActive,
+        },
+        sendedRequestsUsers,
+        recivedRequestsUsers,
+        allFriends,
+      },
     });
   } catch (error) {
     console.error("Error fetching user details:", error);
@@ -233,30 +270,138 @@ const sendFriendRequest = async (req, res) => {
     }
 
     // Check if a request already exists
-    const alreadyRequested = currentUser.requests.some(
+    const requestIndex = currentUser.requests.findIndex(
       (request) => request.userId.toString() === targetUserId
     );
 
-    if (alreadyRequested) {
-      return res.status(400).json({ error: "Friend request already sent." });
+    const pendingIndex = targetUser.pendingRequests.findIndex(
+      (request) => request.userId.toString() === userId
+    );
+
+    if (requestIndex !== -1 && pendingIndex !== -1) {
+      // Friend request exists → Cancel request
+      currentUser.requests.splice(requestIndex, 1);
+      targetUser.pendingRequests.splice(pendingIndex, 1);
+
+      await currentUser.save();
+      await targetUser.save();
+
+      return res.status(200).json({ message: "Friend request canceled." });
+    } else {
+      // Friend request doesn't exist → Send request
+      currentUser.requests.push({ userId: targetUserId });
+      targetUser.pendingRequests.push({ userId: userId });
+
+      await currentUser.save();
+      await targetUser.save();
+
+      return res
+        .status(200)
+        .json({ message: "Friend request sent successfully." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: "An error occurred while toggling the friend request." });
+  }
+};
+
+const acceptFriendRequest = async (req, res) => {
+  const { userId, targetUserId } = req.body;
+
+  // Validate IDs
+  if (
+    !mongoose.Types.ObjectId.isValid(userId) ||
+    !mongoose.Types.ObjectId.isValid(targetUserId)
+  ) {
+    return res.status(400).json({ error: "Invalid user IDs provided." });
+  }
+
+  try {
+    // Fetch users
+    const currentUser = await User.findById(userId);
+    const targetUser = await User.findById(targetUserId);
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({ error: "One or both users not found." });
     }
 
-    // Update the requests and pendingRequests fields
-    currentUser.requests.push({ userId: targetUserId });
-    targetUser.pendingRequests.push({ userId: userId });
+    // Check if request exists
+    const requestIndex = targetUser.receivedRequests.findIndex(
+      (request) => request.userId.toString() === userId
+    );
+
+    if (requestIndex === -1) {
+      return res.status(400).json({ error: "No pending request found." });
+    }
+
+    // Remove from sendedRequests & receivedRequests
+    targetUser.receivedRequests.splice(requestIndex, 1);
+    currentUser.sendedRequests = currentUser.sendedRequests.filter(
+      (request) => request.userId.toString() !== targetUserId
+    );
+
+    // Add to friends list
+    currentUser.friends.push({ userId: targetUserId });
+    targetUser.friends.push({ userId: userId });
 
     // Save changes
     await currentUser.save();
     await targetUser.save();
 
-    return res.status(200).json({
-      message: "Friend request sent successfully.",
-    });
+    return res
+      .status(200)
+      .json({ message: "Friend request accepted successfully." });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: "An error occurred while sending the friend request." });
+      .json({ error: "An error occurred while accepting the friend request." });
+  }
+};
+
+const cancelFriendRequest = async (req, res) => {
+  const { userId, targetUserId } = req.body;
+
+  // Validate IDs
+  if (
+    !mongoose.Types.ObjectId.isValid(userId) ||
+    !mongoose.Types.ObjectId.isValid(targetUserId)
+  ) {
+    return res.status(400).json({ error: "Invalid user IDs provided." });
+  }
+
+  try {
+    // Fetch users
+    const currentUser = await User.findById(userId);
+    const targetUser = await User.findById(targetUserId);
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({ error: "One or both users not found." });
+    }
+
+    // Remove from sendedRequests & receivedRequests
+    currentUser.sendedRequests = currentUser.sendedRequests.filter(
+      (request) => request.userId.toString() !== targetUserId
+    );
+
+    targetUser.receivedRequests = targetUser.receivedRequests.filter(
+      (request) => request.userId.toString() !== userId
+    );
+
+    // Save changes
+    await currentUser.save();
+    await targetUser.save();
+
+    return res
+      .status(200)
+      .json({ message: "Friend request canceled successfully." });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: "An error occurred while canceling the friend request." });
   }
 };
 
@@ -268,4 +413,6 @@ export {
   searchPeople,
   getUserByUsername,
   sendFriendRequest,
+  acceptFriendRequest,
+  cancelFriendRequest,
 };

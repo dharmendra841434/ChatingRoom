@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  acceptFriendRequest,
+  cancelFriendRequest,
   checkUsername,
   getDetails,
   getUserByUsername,
@@ -23,5 +25,7 @@ router.route("/search").get(verifyUserToken, searchPeople);
 router.route("/findByUsername").get(verifyUserToken, getUserByUsername);
 router.route("/user-details").get(verifyUserToken, getDetails);
 router.route("/send-request").post(verifyUserToken, sendFriendRequest);
+router.route("/accept-request").post(verifyUserToken, acceptFriendRequest);
+router.route("/cancel-request").post(verifyUserToken, cancelFriendRequest);
 
 export default router;
