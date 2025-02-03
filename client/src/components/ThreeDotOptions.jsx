@@ -1,6 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
-const ThreeDotOptions = ({ isOpen, setIsOpen }) => {
+const ThreeDotOptions = ({
+  isOpen,
+  setIsOpen,
+  userId,
+  groupOwnerId,
+  handleDelete,
+}) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -28,12 +34,17 @@ const ThreeDotOptions = ({ isOpen, setIsOpen }) => {
             <li className="px-4 py-2 transition-all ease-in-out duration-300 hover:bg-purple-200 cursor-pointer">
               Info
             </li>
-            <li className="px-4 py-2 transition-all ease-in-out duration-300 hover:bg-purple-200 cursor-pointer">
+            {/* <li className="px-4 py-2 transition-all ease-in-out duration-300 hover:bg-purple-200 cursor-pointer">
               See Users
-            </li>
-            <li className="px-4 py-2 transition-all ease-in-out duration-300 hover:bg-purple-200 cursor-pointer">
-              Delete
-            </li>
+            </li> */}
+            {userId === groupOwnerId && (
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 w-full flex justify-start transition-all ease-in-out duration-300 hover:bg-purple-200 cursor-pointer"
+              >
+                Delete
+              </button>
+            )}
           </ul>
         </div>
       )}

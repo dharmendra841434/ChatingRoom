@@ -10,6 +10,7 @@ import { HiOutlineLogout } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import ProfileLoader from "./loaders/ProfileLoader";
+import UsersTabs from "./UsersTabs";
 
 const DashboardTab = ({
   handleStartConversation,
@@ -44,7 +45,10 @@ const DashboardTab = ({
             }`}
             onClick={() => {
               setActiveTab("users");
-              handleStartConversation(null);
+              handleStartConversation({
+                type: "",
+                data: null,
+              });
             }}
           >
             <MdGroups className=" text-3xl" />
@@ -65,7 +69,10 @@ const DashboardTab = ({
             }`}
             onClick={() => {
               setActiveTab("groups");
-              handleStartConversation(null);
+              handleStartConversation({
+                type: "",
+                data: null,
+              });
             }}
           >
             <div
@@ -93,46 +100,22 @@ const DashboardTab = ({
                 onClick={() => {
                   handleSelectOption("find-people");
                 }}
-                className=" flex flex-row items-center justify-center space-x-3 border border-foreground rounded-lg px-8 py-1"
+                className=" flex flex-row w-full items-center justify-center space-x-3 border border-foreground rounded-lg px-8 py-1"
               >
                 <GoSearch className=" text-2xl" />
                 <p>Search People</p>
               </button>
-              <button
+              {/* <button
                 onClick={() => {
                   handleSelectOption("revieved-requist");
                 }}
                 className=" flex flex-row items-center justify-center space-x-1 border border-foreground rounded-lg px-3 py-1"
               >
                 <p>Recieved Requests</p>
-              </button>
+              </button> */}
             </div>
 
-            <div className=" px-3 h-[85%]">
-              <h3 className=" font-bold text-gray-900">All Peoples</h3>
-              <div className=" h-full">
-                {userDetails?.allFriends?.length === 0 ? (
-                  <div className=" w-full h-full  flex flex-col items-center justify-center">
-                    <p>You have no Any People added yet ?</p>
-                  </div>
-                ) : (
-                  <div className=" h-full w-full ">
-                    {userDetails?.allFriends?.map((friend, idx) => (
-                      <div
-                        key={idx}
-                        className=" flex flex-row  space-x-2 py-2 bg-white rounded-lg drop-shadow-md p-2 cursor-pointer my-2"
-                      >
-                        <img
-                          src={friend?.profile_pic}
-                          className=" h-12 w-12 rounded-full"
-                        />
-                        <h1>{friend?.full_name}</h1>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            <UsersTabs userDetails={userDetails} />
           </div>
         )}
         {activeTab === "groups" && (
@@ -172,8 +155,13 @@ const DashboardTab = ({
                       {groupsList?.data?.groups?.map((group) => (
                         <div
                           key={group._id}
-                          onClick={() => handleStartConversation(group)}
-                          className="bg-white drop-shadow-md rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200"
+                          onClick={() =>
+                            handleStartConversation({
+                              type: "group",
+                              data: group,
+                            })
+                          }
+                          className="bg-white drop-shadow-sm rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200"
                         >
                           <div className=" flex items-center space-x-3 ">
                             <img

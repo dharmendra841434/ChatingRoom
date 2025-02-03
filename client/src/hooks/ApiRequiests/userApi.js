@@ -31,6 +31,14 @@ export const joinGroupRequest = async (payload) => {
   return response.data || response; // Assuming the response contains the data
 };
 
+// Function to join a group
+export const deleteGroupRequest = async (groupKey) => {
+  const response = await axiosInstance.post(`/group/delete-group`, {
+    groupKey: groupKey,
+  });
+  return response.data || response; // Assuming the response contains the data
+};
+
 // Function to fetch register users
 export const registerRequest = async (payload) => {
   const response = await axiosInstance.post(`/auth/register`, payload);

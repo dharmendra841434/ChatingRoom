@@ -113,4 +113,33 @@ const joinGroup = async (req, res) => {
   }
 };
 
-export { getAllGroupsOfUser, createNewGroup, joinGroup };
+const deleteGroup = async (req, res) => {
+  try {
+    const { groupKey } = req.body;
+
+    // Validate input
+    if (!groupKey) {
+      return res.status(400).json({ message: "Group Key is required" });
+    }
+
+    // Find and delete the group
+    const group = await Group.findOneAndDelete({ groupKey });
+
+    // If the group doesn't exist, send an error response
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Send success response
+    return res.status(200).json({
+      message: "Group deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting group:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the group" });
+  }
+};
+
+export { getAllGroupsOfUser, createNewGroup, joinGroup, deleteGroup };

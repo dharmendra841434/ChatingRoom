@@ -6,6 +6,7 @@ import DBConnector from "./db/connections.js";
 import cors from "cors";
 import AuthRouter from "./routes/auth.route.js";
 import GroupRouter from "./routes/group.route.js";
+import ChatRouter from "./routes/chat.route.js";
 import bodyParser from "body-parser";
 import Group from "./models/group.model.js";
 
@@ -96,28 +97,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/group", GroupRouter);
-// Check Existing room
-// app.get("/check-room", async (req, res) => {
-//   try {
-//     const room = await Room.findOne({ roomKey: req.query.roomKey });
-//     if (room) {
-//       res.send({
-//         roomKey: room.roomKey,
-//         isExist: true,
-//       });
-//     } else {
-//       res.send({
-//         roomKey: room.roomKey,
-//         isExist: false,
-//       });
-//     }
-//   } catch (error) {
-//     res.send({
-//       error: error,
-//       status: false,
-//     });
-//   }
-// });
+app.use("/api/v1/chat", ChatRouter);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

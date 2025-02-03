@@ -128,7 +128,9 @@ const getDetails = async (req, res) => {
     }
 
     // Find user by ID, excluding the password field
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId).select(
+      "-password -updatedAt -createdAt  -__v "
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -166,7 +168,8 @@ const getDetails = async (req, res) => {
       message: "User details retrieved successfully",
       data: {
         user: {
-          username: user.username,
+          _id: user?._id,
+          username: user?.username,
           full_name: user?.full_name,
           profile_pic: user?.profile_pic,
           isActive: user?.isActive,
