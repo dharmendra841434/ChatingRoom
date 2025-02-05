@@ -10,6 +10,7 @@ import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
+import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import { timeAgo } from "@/services/helper";
 import { useSocket } from "@/services/SocketProvider";
 import React, { useEffect, useRef, useState } from "react";
@@ -38,6 +39,7 @@ const DashboardPage = () => {
     setActiveConversation: setActiveConversation,
     setThreedot: setThreedot,
   });
+  const invalidateQuery = useInvalidateQuery();
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -150,8 +152,9 @@ const DashboardPage = () => {
       setInput("");
     });
 
-    socket.on("reciveFiles", (data) => {
-      console.log(data, "data");
+    socket.on("reciveNotification", (data) => {
+      console.log(data, "reciveNotification");
+      invalidateQuery("userDetails");
     });
 
     return () => {

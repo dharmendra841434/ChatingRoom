@@ -72,21 +72,17 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("sendNotification", async ({ message = "" }) => {
+    console.log(` Notification: ${message}`);
+
+    io.emit("reciveNotification", {
+      messages: "Notification Recived",
+    });
+  });
+
   // Handle disconnections
   socket.on("disconnect", async () => {
     console.log(`User disconnected: ${socket.id}`);
-
-    // const rooms = await Group.find({ "allUsers.socketId": socket.id });
-    // for (const room of rooms) {
-    //   // Remove the user with the matching socket ID
-    //   room.allUsers = room.allUsers.filter(
-    //     (user) => user.socketId !== socket.id
-    //   );
-    //   await room.save();
-
-    //   // Notify others in the room
-    //   io.to(room.roomKey).emit("message", `A user has left the room.`);
-    // }
   });
 });
 

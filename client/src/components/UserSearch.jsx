@@ -4,6 +4,7 @@ import {
   sendFriendRequest,
 } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
+import { useSocket } from "@/services/SocketProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 
@@ -14,6 +15,7 @@ const UserSearch = () => {
   const [loading, setLoading] = useState(false); // Added loading state
   const { userDetails } = useGetUserDetails();
   const queryClient = useQueryClient();
+  const socket = useSocket();
 
   // Debounce function
   useEffect(() => {
@@ -66,6 +68,9 @@ const UserSearch = () => {
         .then(() => queryClient.invalidateQueries(["userDetails"]))
         .catch(console.error);
     }
+    socket.emit("sendNotification", {
+      message: `Friend request sent by ${userDetails?.data?.user?.username}`,
+    });
   };
 
   //console.log(userDetails, "ddddd");
