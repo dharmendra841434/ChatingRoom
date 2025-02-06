@@ -37,6 +37,7 @@ const GroupSchema = new mongoose.Schema({
     _id: false,
   },
   owner: { type: String, required: true },
+  groupIconColor: { type: String, required: true },
 });
 
 const Group = mongoose.model("groups", GroupSchema);

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import ProfileLoader from "./loaders/ProfileLoader";
 import UsersTabs from "./UsersTabs";
+import ProfileIcon from "./ProfileIcon";
 
 const DashboardTab = ({
   handleStartConversation,
@@ -164,11 +165,16 @@ const DashboardTab = ({
                           className="bg-white drop-shadow-sm rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200"
                         >
                           <div className=" flex items-center space-x-3 ">
-                            <img
+                            {/* <img
                               src="/groupIcon.webp"
                               alt="icon"
                               className=" h-10 w-10 rounded-full"
+                            /> */}
+                            <ProfileIcon
+                              fullName={group.groupName}
+                              color={group?.groupIconColor}
                             />
+
                             <div>
                               <h2 className=" font-semibold text-gray-800 capitalize ">
                                 {group.groupName}

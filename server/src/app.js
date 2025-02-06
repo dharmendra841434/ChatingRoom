@@ -91,6 +91,19 @@ app.get("/", (req, res) => {
   res.send("Server is running.");
 });
 
+// Define a basic route
+app.get("/testBG/:id", (req, res) => {
+  console.log("API is called by android app");
+
+  const routeParams = req.params;
+  console.log("Route Parameters:", routeParams);
+
+  res.status(200).json({
+    message: "API called successfully",
+    routeParams: routeParams,
+  });
+});
+
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/group", GroupRouter);
 app.use("/api/v1/chat", ChatRouter);

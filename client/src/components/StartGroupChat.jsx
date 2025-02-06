@@ -2,6 +2,9 @@ import React from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import ThreeDotOptions from "./ThreeDotOptions";
 import { MdOutlineLink } from "react-icons/md";
+import ProfileIcon from "./ProfileIcon";
+import { timeAgo } from "@/services/helper";
+import ChatImage from "./ChatImage";
 
 const StartGroupChat = ({
   chatData,
@@ -21,10 +24,14 @@ const StartGroupChat = ({
     <div className="w-full flex flex-col h-full">
       <div className=" flex flex-row justify-between items-center py-3 px-8 bg-purple-50 border-b border-b-gray-200">
         <div className=" flex items-center space-x-3 ">
-          <img
+          {/* <img
             src="/groupIcon.webp"
             alt="icon"
             className=" h-10 w-10 rounded-full"
+          /> */}
+          <ProfileIcon
+            fullName={chatData?.groupName}
+            color={chatData?.groupIconColor}
           />
           <div>
             <h2 className="text-lg font-semibold text-gray-800 capitalize ">
@@ -83,7 +90,7 @@ const StartGroupChat = ({
                     }
                     alt="User Avatar"
                     className="w-10 h-10 rounded-full cursor-pointer"
-                    title={useGetUserDetails?.data?.username}
+                    title={userDetails?.data?.username}
                   />
                 </button>
                 {message?.message !== "" ? (

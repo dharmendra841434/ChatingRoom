@@ -7,6 +7,7 @@ import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import { useSocket } from "@/services/SocketProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
+import IphoneLoader from "./loaders/IphoneLoader";
 
 const UserSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,6 +17,7 @@ const UserSearch = () => {
   const { userDetails } = useGetUserDetails();
   const queryClient = useQueryClient();
   const socket = useSocket();
+  const [Loader, setLoader] = useState(false);
 
   // Debounce function
   useEffect(() => {
@@ -55,6 +57,7 @@ const UserSearch = () => {
   };
 
   const handleSendFriendRequest = async (userId) => {
+    setLoader(true);
     if (
       userDetails?.data?.sendedRequestsUsers?.some(
         (item) => item?._id === userId
@@ -62,11 +65,13 @@ const UserSearch = () => {
     ) {
       await cancelSendFriendRequest({ targetUserId: userId })
         .then(() => queryClient.invalidateQueries(["userDetails"]))
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setLoader(false));
     } else {
       await sendFriendRequest({ targetUserId: userId })
         .then(() => queryClient.invalidateQueries(["userDetails"]))
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setLoader(false));
     }
     socket.emit("sendNotification", {
       message: `Friend request sent by ${userDetails?.data?.user?.username}`,
@@ -108,7 +113,7 @@ const UserSearch = () => {
               filteredUsers.map((user) => (
                 <li
                   key={user._id}
-                  className="px-4 py-3 hover:bg-gray-50 flex items-center justify-between"
+                  className="px-3 py-3 hover:bg-gray-50 flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-4">
                     <img
@@ -134,13 +139,19 @@ const UserSearch = () => {
                   ) : (
                     <button
                       onClick={() => handleSendFriendRequest(user._id)}
-                      className="px-4 py-2 text-sm font-medium text-white bg-foreground rounded-md hover:bg-purple-700 "
+                      className=" flex flex-col items-center justify-center w-32 py-2 text-sm font-medium text-white bg-foreground rounded-md hover:bg-purple-700 "
                     >
-                      {userDetails?.data?.sendedRequestsUsers?.some(
-                        (item) => item?._id === user?._id
-                      )
-                        ? "Cancel Request"
-                        : "Send Request"}
+                      {Loader ? (
+                        <IphoneLoader />
+                      ) : (
+                        <p>
+                          {userDetails?.data?.sendedRequestsUsers?.some(
+                            (item) => item?._id === user?._id
+                          )
+                            ? "Cancel Request"
+                            : "Send Request"}
+                        </p>
+                      )}
                     </button>
                   )}
                 </li>

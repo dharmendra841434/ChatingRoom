@@ -4,40 +4,42 @@ import {
 } from "@/hooks/ApiRequiests/userApi";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
+import IphoneLoader from "./loaders/IphoneLoader";
 
 const UsersTabs = ({ userDetails }) => {
   const [activeTab, setActiveTab] = useState("connected");
   const [loading, setLoading] = useState(false);
   // console.log(userDetails, "details");
   const queryClient = useQueryClient();
+  const [acceptLoader, setAcceptLoader] = useState(false);
+  const [cancelLoader, setCancelLoader] = useState(false);
 
   const handAcceptRequest = async (userId) => {
-    setLoading(true);
+    setAcceptLoader(true);
     await acceptFriendRequest({ targetUserId: userId })
       .then((result) => {
         console.log(result);
         queryClient.invalidateQueries(["userDetails"]);
-        setLoading(false);
+
         setActiveTab("connected");
       })
       .catch((error) => {
         console.log(error);
-        setLoading(false);
-      });
+      })
+      .finally(() => setAcceptLoader(false));
   };
 
   const handCancelRequest = async (userId) => {
-    setLoading(true);
+    setCancelLoader(true);
     await cancelRecivedFriendRequest({ targetUserId: userId })
       .then((result) => {
         console.log(result);
         queryClient.invalidateQueries(["userDetails"]);
-        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
-        setLoading(false);
-      });
+      })
+      .finally(() => setCancelLoader(false));
   };
 
   return (
@@ -126,16 +128,16 @@ const UsersTabs = ({ userDetails }) => {
                   {/* Action Buttons */}
                   <div className="flex space-x-2">
                     <button
-                      className="bg-green-700 hover:bg-green-800 text-white px-3 py-1 rounded-md"
+                      className="bg-green-700 hover:bg-green-800 text-white px-5 py-1 rounded-md text-sm"
                       onClick={() => handAcceptRequest(user._id)}
                     >
-                      Accept
+                      {acceptLoader ? <IphoneLoader /> : <p>Accept</p>}
                     </button>
                     <button
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                      className="bg-red-600 hover:bg-red-700 text-white px-5 py-1 rounded-md text-sm"
                       onClick={() => handCancelRequest(user._id)}
                     >
-                      Reject
+                      {cancelLoader ? <IphoneLoader /> : <p>Reject</p>}
                     </button>
                   </div>
                 </div>

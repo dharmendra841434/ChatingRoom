@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Group from "../models/group.model.js";
-import { generateRandomString } from "../utils/helper.js";
+import { generateRandomString, getRandomHexColor } from "../utils/helper.js";
 
 const getAllGroupsOfUser = async (req, res) => {
   try {
@@ -51,9 +51,9 @@ const createNewGroup = async (req, res) => {
     // Generate a random group key
     const groupKey = generateRandomString(15);
 
-    console.log(
-      `Creating group: userId: ${userId}, groupName: ${groupName}, groupKey: ${groupKey}`
-    );
+    // console.log(
+    //   `Creating group: userId: ${userId}, groupName: ${groupName}, groupKey: ${groupKey}`
+    // );
 
     // Create the new group in the database
     const newGroup = await Group.create({
@@ -62,6 +62,7 @@ const createNewGroup = async (req, res) => {
       allUsers: [{ userId: userId }],
       messages: [],
       owner: userId,
+      groupIconColor: getRandomHexColor(),
     });
 
     // Send success response
