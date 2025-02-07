@@ -1,19 +1,39 @@
-import React from "react";
+import {
+  cancelSendFriendRequest,
+  sendFriendRequest,
+} from "@/hooks/ApiRequiests/userApi";
+import useInvalidateQuery from "@/hooks/useInvalidateQuery";
+import { timeAgo } from "@/services/helper";
+import { useSocket } from "@/services/SocketProvider";
+import React, { useState } from "react";
+import IphoneLoader from "./loaders/IphoneLoader";
 
-const UserProfileCard = ({ user }) => {
-  //   const user = {
-  //     _id: "6794ba12c543715293526841",
-  //     username: "dharmendra2182",
-  //     full_name: "Dharmendra Kumar",
-  //     profile_pic:
-  //       "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_640.png",
-  //     isActive: true,
-  //     createdAt: "2025-01-25T10:16:50.229Z",
-  //     updatedAt: "2025-01-25T10:16:50.229Z",
-  //   };
+const UserProfileCard = ({ user, currentUser }) => {
+  const [Loader, setLoader] = useState(false);
+  const socket = useSocket();
+  const invalidateQuery = useInvalidateQuery();
+  const handleToggleRequest = async () => {
+    setLoader(true);
+    if (
+      currentUser?.sendedRequestsUsers?.some((item) => item?._id === user?._id)
+    ) {
+      await cancelSendFriendRequest({ targetUserId: user?._id })
+        .then(() => invalidateQuery("userDetails"))
+        .catch(console.error)
+        .finally(() => setLoader(false));
+    } else {
+      await sendFriendRequest({ targetUserId: user?._id })
+        .then(() => invalidateQuery("userDetails"))
+        .catch(console.error)
+        .finally(() => setLoader(false));
+    }
+    socket.emit("sendNotification", {
+      message: `Friend request sent by ${currentUser?.user?.username}`,
+    });
+  };
 
   return (
-    <div className="flex justify-center items-center  bg-gray-100">
+    <div className="flex justify-center items-center  bg-white">
       <div className="w-96 rounded-2xl shadow-lg bg-white p-6">
         <div className="flex flex-col items-center">
           <img
@@ -33,12 +53,40 @@ const UserProfileCard = ({ user }) => {
             {user.isActive ? "Active" : "Inactive"}
           </p>
           <div className="mt-4 text-sm text-gray-500">
-            <p>Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
-            <p>Last Updated: {new Date(user.updatedAt).toLocaleDateString()}</p>
+            <p>
+              Joined : {timeAgo(new Date(user.createdAt).toLocaleDateString())}
+            </p>
+            <p>
+              Last Updated :{" "}
+              {timeAgo(new Date(user.updatedAt).toLocaleDateString())}
+            </p>
           </div>
-          <button className="mt-6 bg-blue-500 hover:bg-blue-600 text-white w-full py-2 rounded-lg">
-            Send Request
-          </button>
+          {currentUser?.allFriends?.some((item) => item?._id === user?._id) ? (
+            <button className="mt-6 bg-foreground hover:bg-purple-800 text-white w-full py-2 rounded-lg">
+              Start Conversation
+            </button>
+          ) : (
+            <>
+              {currentUser?.user?.username !== user.username && (
+                <button
+                  onClick={handleToggleRequest}
+                  className=" flex items-center justify-center mt-6 bg-foreground hover:bg-purple-800 text-white w-full py-2 rounded-lg"
+                >
+                  {Loader ? (
+                    <IphoneLoader />
+                  ) : (
+                    <p>
+                      {currentUser?.sendedRequestsUsers?.some(
+                        (item) => item?._id === user?._id
+                      )
+                        ? "Cancel Request"
+                        : "Send Request"}
+                    </p>
+                  )}
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

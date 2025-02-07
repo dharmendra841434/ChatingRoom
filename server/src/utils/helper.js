@@ -21,3 +21,44 @@ export function getRandomHexColor() {
 
   return hexColor;
 }
+
+export const createUserObjects = (currentUser, targetUser) => {
+  // Destructure currentUser
+  const {
+    _id: cId,
+    full_name: cFullName,
+    username: cUsername,
+    profile_pic: cProfilePic,
+    isActive: cIsActive,
+    friends: cFriends,
+  } = currentUser;
+  const cUser = {
+    _id: cId,
+    full_name: cFullName,
+    username: cUsername,
+    profile_pic: cProfilePic,
+    isActive: cIsActive,
+    friends: cFriends,
+  };
+
+  // Destructure targetUser
+  const {
+    _id: tId,
+    full_name: tFullName,
+    username: tUsername,
+    profile_pic: tProfilePic,
+    isActive: tIsActive,
+    friends: tFriends,
+  } = targetUser;
+  const tUser = {
+    _id: tId,
+    full_name: tFullName,
+    username: tUsername,
+    profile_pic: tProfilePic,
+    isActive: tIsActive,
+    friends: tFriends,
+  };
+
+  // Return both cUser and tUser
+  return { cUser, tUser };
+};

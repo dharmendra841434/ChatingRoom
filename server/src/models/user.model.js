@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { type } from "os";
 
 // Define MongoDB schemas and models
 const UserSchema = new mongoose.Schema(
@@ -33,6 +34,7 @@ const UserSchema = new mongoose.Schema(
       type: [
         {
           userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+          chatKey: { type: String, required: true },
         },
       ],
       default: [],

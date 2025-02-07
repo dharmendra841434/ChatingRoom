@@ -17,6 +17,7 @@ const DashboardTab = ({
   handleStartConversation,
   handleSelectOption,
   userDetails,
+  handleSelectChat,
 }) => {
   const [activeTab, setActiveTab] = useState("groups");
   const [allUsers, setAllUsers] = useState([]);
@@ -116,7 +117,12 @@ const DashboardTab = ({
               </button> */}
             </div>
 
-            <UsersTabs userDetails={userDetails} />
+            <UsersTabs
+              userDetails={userDetails}
+              handleSelectChat={(chat) => {
+                handleSelectChat(chat);
+              }}
+            />
           </div>
         )}
         {activeTab === "groups" && (
@@ -184,10 +190,23 @@ const DashboardTab = ({
                                   {group?.messages[group.messages?.length - 1]
                                     ?.mediaFile !== null ? (
                                     <>
-                                      <p>Photo</p>
+                                      <p>
+                                        {
+                                          group?.messages[
+                                            group.messages?.length - 1
+                                          ]?.username
+                                        }
+                                        :Photo
+                                      </p>
                                     </>
                                   ) : (
                                     <p className="text-xs my-2 text-gray-600 ">
+                                      {
+                                        group?.messages[
+                                          group.messages?.length - 1
+                                        ]?.username
+                                      }{" "}
+                                      :{" "}
                                       {
                                         group?.messages[
                                           group.messages?.length - 1

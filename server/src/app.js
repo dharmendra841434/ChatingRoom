@@ -9,6 +9,7 @@ import GroupRouter from "./routes/group.route.js";
 import ChatRouter from "./routes/chat.route.js";
 import bodyParser from "body-parser";
 import Group from "./models/group.model.js";
+import UserChat from "./models/userChat.js";
 
 // Create an Express application
 const app = express();
@@ -69,6 +70,23 @@ io.on("connection", (socket) => {
       }
 
       io.to(groupKey).emit("reciveMessages", { messages: group?.messages });
+    }
+  );
+
+  // Handle chat messages
+  socket.on(
+    "sendUserMessage",
+    async ({ chatKey, message = "", username, mediaFile = null }) => {
+      console.log(`Message from ${username} in room ${chatKey}: ${message}`);
+      const userchat = await UserChat.findOne({ chatKey });
+      if (userchat) {
+        userchat.messages.push({ username, message, mediaFile });
+        await userchat.save();
+      }
+
+      io.to(chatKey).emit("reciveUserMessages", {
+        messages: userchat?.messages,
+      });
     }
   );
 

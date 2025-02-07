@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import IphoneLoader from "./loaders/IphoneLoader";
 
-const UsersTabs = ({ userDetails }) => {
+const UsersTabs = ({ userDetails, handleSelectChat }) => {
   const [activeTab, setActiveTab] = useState("connected");
   const [loading, setLoading] = useState(false);
   // console.log(userDetails, "details");
@@ -41,6 +41,8 @@ const UsersTabs = ({ userDetails }) => {
       })
       .finally(() => setCancelLoader(false));
   };
+
+  //console.log(userDetails, "details");
 
   return (
     <div className=" h-[80%]">
@@ -82,6 +84,9 @@ const UsersTabs = ({ userDetails }) => {
               {userDetails?.allFriends?.map((friend, idx) => (
                 <div
                   key={idx}
+                  onClick={() => {
+                    handleSelectChat(friend);
+                  }}
                   className=" flex flex-row  space-x-2 py-2 bg-white rounded-lg drop-shadow-sm p-2 cursor-pointer my-2"
                 >
                   <img

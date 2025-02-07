@@ -4,9 +4,13 @@ import CustomModal from "@/components/CustomModal";
 import DashboardTab from "@/components/DashboardTab";
 import SelectedOptions from "@/components/SelectedOptions";
 import StartGroupChat from "@/components/StartGroupChat";
+import StartUserChat from "@/components/StartUserChat";
 import ThreeDotOptions from "@/components/ThreeDotOptions";
 import UserProfileCard from "@/components/UserProfile";
-import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
+import {
+  getUserProfile,
+  sendFriendRequest,
+} from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
@@ -20,6 +24,7 @@ import { MdOutlineLink } from "react-icons/md";
 
 const DashboardPage = () => {
   const [messages, setMessages] = useState([]);
+  const [userChatMessages, setUserChatMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [showOptions, setShowOptions] = useState("create-group");
@@ -47,11 +52,11 @@ const DashboardPage = () => {
       const data = {
         message: input,
         groupKey: activeConversation.data?.groupKey,
-        username: userDetails?.data?.username,
+        username: userDetails?.data?.user?.username,
       };
 
       const newMessage = {
-        username: userDetails?.data?.username,
+        username: userDetails?.data?.user?.username,
         message: input,
         mediaFile: null,
         timestamp: new Date().toISOString(), // Use current timestamp
@@ -60,6 +65,29 @@ const DashboardPage = () => {
       // Add the new message object to the state
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("chatMessage", data);
+      setInput("");
+    }
+  };
+
+  const handleSendUserMessage = (e) => {
+    e.preventDefault();
+    if (input.trim()) {
+      const data = {
+        message: input,
+        chatKey: activeConversation.data?.chatKey,
+        username: userDetails?.data?.user?.username,
+      };
+
+      const newMessage = {
+        username: userDetails?.data?.user?.username,
+        message: input,
+        mediaFile: null,
+        timestamp: new Date().toISOString(), // Use current timestamp
+      };
+
+      // Add the new message object to the state
+      setUserChatMessages((prevMessages) => [...prevMessages, newMessage]);
+      socket.emit("sendUserMessage", data);
       setInput("");
     }
   };
@@ -90,7 +118,7 @@ const DashboardPage = () => {
   const handleUpload = async () => {
     setIsOpenMediaPopup(false);
     const newMessage = {
-      username: userDetails?.data?.username,
+      username: userDetails?.data?.user?.username,
       message: "",
       mediaFile: {
         mediaType: "image",
@@ -105,13 +133,41 @@ const DashboardPage = () => {
       //console.log(result, "result");
       const data = {
         groupKey: activeConversation.data?.groupKey,
-        username: userDetails?.data?.username,
+        username: userDetails?.data?.user?.username,
         mediaFile: {
           mediaType: "image",
           url: result,
         },
       };
       socket.emit("chatMessage", data);
+    });
+  };
+
+  const handleUserChatUpload = async () => {
+    setIsOpenMediaPopup(false);
+    const newMessage = {
+      username: userDetails?.data?.user?.username,
+      message: "",
+      mediaFile: {
+        mediaType: "image",
+        url: selectedFile,
+      },
+      timestamp: new Date().toISOString(), // Use current timestamp
+    };
+
+    // Add the new message object to the state
+    setUserChatMessages((prevMessages) => [...prevMessages, newMessage]);
+    await uploadFile(selectedFile).then((result) => {
+      //console.log(result, "result");
+      const data = {
+        chatKey: activeConversation.data?.chatKey,
+        username: userDetails?.data?.user?.username,
+        mediaFile: {
+          mediaType: "image",
+          url: result,
+        },
+      };
+      socket.emit("sendUserMessage", data);
     });
   };
 
@@ -132,8 +188,19 @@ const DashboardPage = () => {
     }
   }, [messages]);
 
+  const handleSelectChat = async (chat) => {
+    // console.log(chat, "asjdguafdy");
+    setActiveConversation({
+      type: "user",
+      data: chat,
+    });
+  };
+
   useEffect(() => {
-    if (activeConversation?.data !== null) {
+    if (
+      activeConversation?.data !== null &&
+      userDetails?.data?.user?.username
+    ) {
       const data = {
         groupKey: activeConversation?.data?.groupKey,
         username: userDetails?.data?.user?.username,
@@ -141,28 +208,34 @@ const DashboardPage = () => {
       socket.emit("joinGroup", data);
     }
 
-    socket.on("joinedGroup", ({ message, messages }) => {
-      console.log(message);
-      setMessages(messages);
-    });
-
-    socket.on("reciveMessages", ({ messages }) => {
-      console.log(messages, "messages");
-      setMessages(messages);
+    const handleMessages = ({ messages }) => {
+      setUserChatMessages(messages);
       setInput("");
-    });
+    };
 
-    socket.on("reciveNotification", (data) => {
+    const handleNotification = (data) => {
       console.log(data, "reciveNotification");
       invalidateQuery("userDetails");
+    };
+
+    socket.on("joinedGroup", ({ message, messages }) => {
+      setMessages(messages);
     });
 
-    return () => {
-      socket.off("joinGroup");
-    };
-  }, [socket, activeConversation]);
+    socket.on("receiveMessages", handleMessages);
+    socket.on("receiveUserMessages", handleMessages);
+    socket.on("receiveNotification", handleNotification);
 
-  //console.log(userDetails, "userDetails");
+    return () => {
+      // Clean up all event listeners
+      socket.off("joinedGroup");
+      socket.off("receiveMessages");
+      socket.off("receiveUserMessages");
+      socket.off("receiveNotification");
+    };
+  }, [socket, activeConversation, userDetails]);
+
+  // console.log(activeConversation, "userDetails");
 
   return (
     <div className="flex h-screen max-w-[96rem] mx-auto ">
@@ -170,6 +243,7 @@ const DashboardPage = () => {
         handleSelectOption={handleOptions}
         handleStartConversation={setActiveConversation}
         userDetails={userDetails?.data}
+        handleSelectChat={handleSelectChat}
       />
       <CustomModal isOpen={isOpenModal} onClose={setIsOpenModal}>
         <div className=" p-6">
@@ -213,26 +287,48 @@ const DashboardPage = () => {
           setViewUserProfile(null);
         }}
       >
-        <UserProfileCard user={viewUserProfile} />
+        <UserProfileCard
+          user={viewUserProfile}
+          currentUser={userDetails?.data}
+        />
       </CustomModal>
       <div className=" w-3/4 ">
         {activeConversation?.data ? (
           <div className="w-full flex flex-col h-full  ">
             {/* Chat Section */}
-            <StartGroupChat
-              chatContainerRef={chatContainerRef}
-              chatData={activeConversation?.data}
-              handleFileSelect={handleFileSelect}
-              handleSendMessage={handleSendMessage}
-              handleViewProfile={handleViewProfile}
-              messages={messages}
-              setInput={setInput}
-              userDetails={userDetails}
-              handleDelete={handleDelete}
-              setThreedot={setThreedot}
-              threedot={threedot}
-              input={input}
-            />
+            {activeConversation?.type === "group" ? (
+              <StartGroupChat
+                chatContainerRef={chatContainerRef}
+                chatData={activeConversation?.data}
+                handleFileSelect={handleFileSelect}
+                handleSendMessage={handleSendMessage}
+                handleViewProfile={handleViewProfile}
+                messages={messages}
+                setInput={setInput}
+                userDetails={userDetails}
+                handleDelete={handleDelete}
+                setThreedot={setThreedot}
+                threedot={threedot}
+                input={input}
+                progress={progress}
+              />
+            ) : (
+              <StartUserChat
+                chatContainerRef={chatContainerRef}
+                chatData={activeConversation?.data}
+                handleFileSelect={handleUserChatUpload}
+                handleSendMessage={handleSendUserMessage}
+                handleViewProfile={handleViewProfile}
+                messages={userChatMessages}
+                setInput={setInput}
+                userDetails={userDetails}
+                handleDelete={handleDelete}
+                setThreedot={setThreedot}
+                threedot={threedot}
+                input={input}
+                progress={progress}
+              />
+            )}
           </div>
         ) : (
           <div className=" h-full flex flex-col items-center justify-center bg-white">

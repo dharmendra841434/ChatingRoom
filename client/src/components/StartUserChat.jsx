@@ -6,7 +6,7 @@ import ProfileIcon from "./ProfileIcon";
 import { timeAgo } from "@/services/helper";
 import ChatImage from "./ChatImage";
 
-const StartGroupChat = ({
+const StartUserChat = ({
   chatData,
   handleFileSelect,
   userDetails,
@@ -21,6 +21,8 @@ const StartGroupChat = ({
   input,
   progress,
 }) => {
+  //console.log(messages, "mejgdsg");
+
   return (
     <div className="w-full flex flex-col h-full">
       <div className=" flex flex-row justify-between items-center py-3 px-8 bg-purple-50 border-b border-b-gray-200">
@@ -31,20 +33,16 @@ const StartGroupChat = ({
             className=" h-10 w-10 rounded-full"
           /> */}
           <ProfileIcon
-            fullName={chatData?.groupName}
-            color={chatData?.groupIconColor}
+            fullName={chatData?.full_name}
+            //color={chatData?.groupIconColor}
           />
           <div>
             <h2 className="text-lg font-semibold text-gray-800 capitalize ">
-              {chatData?.groupName}
+              {chatData?.full_name}
             </h2>
-            <p className="text-sm text-gray-600">
-              <span className="">Invite By Group ID:</span> {chatData?.groupKey}
-            </p>
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Total Users:</span>{" "}
-              {chatData?.allUsers?.length}
-            </p>
+            {/* <p className="text-sm text-gray-600">
+              <span className="">Active:</span> {chatData?.isActive}
+            </p> */}
           </div>
         </div>
         <div>
@@ -168,4 +166,4 @@ const StartGroupChat = ({
   );
 };
 
-export default StartGroupChat;
+export default StartUserChat;

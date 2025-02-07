@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
+import UserChat from "../models/userChat.js";
+import { createUserObjects } from "../utils/helper.js";
 
 const registerUser = async (req, res) => {
   try {
@@ -329,25 +331,36 @@ const acceptFriendRequest = async (req, res) => {
       return res.status(400).json({ error: "No pending request found." });
     }
 
+    // Create a new chat between the two users
+    const chatKey = `${userId}_${targetUserId}`; // Unique identifier for chat
+
     // Remove from currentUser's receivedRequests
     currentUser.recivedRequests.splice(requestIndex, 1);
 
-    // Remove from targetUser's sendedRequests by comparing userId
+    // Remove from targetUser's sendedRequests
     targetUser.sendedRequests = targetUser.sendedRequests.filter(
       (request) => request.userId.toString() !== userId.toString()
     );
 
     // Add to friends list
-    currentUser.friends.push({ userId: targetUserId });
-    targetUser.friends.push({ userId: userId });
+    currentUser.friends.push({ userId: targetUserId, chatKey: chatKey });
+    targetUser.friends.push({ userId: userId, chatKey: chatKey });
 
-    // Save changes
+    // Save users
     await currentUser.save();
     await targetUser.save();
 
+    const { cUser, tUser } = createUserObjects(currentUser, targetUser);
+    const newChat = new UserChat({
+      chatKey,
+      participants: [cUser, tUser],
+    });
+
+    await newChat.save(); // Save the chat
+
     return res
       .status(200)
-      .json({ message: "Friend request accepted successfully." });
+      .json({ message: "Friend request accepted, chat created successfully." });
   } catch (error) {
     console.error(error);
     return res
