@@ -4,6 +4,7 @@ import {
   cancelRecievedRequest,
   cancelSendedRequest,
   checkUsername,
+  getChatDataByUserId,
   getDetails,
   getUserByUsername,
   login,
@@ -33,5 +34,6 @@ router
 router
   .route("/cancel-sended-request")
   .post(verifyUserToken, cancelSendedRequest);
+router.route("/friends-chat").get(verifyUserToken, getChatDataByUserId);
 
 export default router;

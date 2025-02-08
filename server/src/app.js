@@ -58,18 +58,32 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Join a chat room
+  socket.on("joinChat", async ({ chatKey, username }) => {
+    console.log(`User ${username} joined room ${chatKey}`);
+    socket.join(chatKey);
+    // Emit a message to the user that they have joined the room
+    const chat = await UserChat.findOne({ chatKey });
+    socket.emit("joinedChat", {
+      message: `Welcome to the group ${chatKey}! `,
+      messages: chat?.messages,
+    });
+  });
+
   // Handle chat messages
   socket.on(
     "chatMessage",
     async ({ groupKey, message = "", username, mediaFile = null }) => {
-      console.log(`Message from ${username} in room ${groupKey}: ${message}`);
+      console.log(
+        `Message from ${username} in room ${groupKey}: ${message} ${mediaFile?.url}`
+      );
       const group = await Group.findOne({ groupKey });
       if (group) {
         group.messages.push({ username, message, mediaFile });
         await group.save();
       }
 
-      io.to(groupKey).emit("reciveMessages", { messages: group?.messages });
+      io.to(groupKey).emit("receiveMessages", { messages: group?.messages });
     }
   );
 
@@ -84,7 +98,7 @@ io.on("connection", (socket) => {
         await userchat.save();
       }
 
-      io.to(chatKey).emit("reciveUserMessages", {
+      io.to(chatKey).emit("receiveUserMessages", {
         messages: userchat?.messages,
       });
     }
@@ -93,7 +107,7 @@ io.on("connection", (socket) => {
   socket.on("sendNotification", async ({ message = "" }) => {
     console.log(` Notification: ${message}`);
 
-    io.emit("reciveNotification", {
+    io.emit("receiveNotification", {
       messages: "Notification Recived",
     });
   });

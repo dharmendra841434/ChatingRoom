@@ -5,14 +5,16 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import IphoneLoader from "./loaders/IphoneLoader";
+import useGetAllPeoplesChat from "@/hooks/authenticationHooks/useGetAllPeoplesChat";
 
-const UsersTabs = ({ userDetails, handleSelectChat }) => {
+const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
   const [activeTab, setActiveTab] = useState("connected");
   const [loading, setLoading] = useState(false);
   // console.log(userDetails, "details");
   const queryClient = useQueryClient();
   const [acceptLoader, setAcceptLoader] = useState(false);
   const [cancelLoader, setCancelLoader] = useState(false);
+  const { peoplesChatLists } = useGetAllPeoplesChat();
 
   const handAcceptRequest = async (userId) => {
     setAcceptLoader(true);
@@ -42,14 +44,17 @@ const UsersTabs = ({ userDetails, handleSelectChat }) => {
       .finally(() => setCancelLoader(false));
   };
 
-  //console.log(userDetails, "details");
+  //console.log(peoplesChatLists, "peoplesChatLists");
 
   return (
     <div className=" h-[80%]">
       {/* <h3 className=" font-bold text-gray-900">All Peoples</h3> */}
       <div className=" flex flex-row items-center relative ">
         <button
-          onClick={() => setActiveTab("connected")}
+          onClick={() => {
+            setActiveTab("connected");
+            handleChangetabs();
+          }}
           className={`absolute  w-1/2 flex items-center z-30 justify-center transition-all duration-300 ease-in-out p-3 left-0 cursor-pointer ${
             activeTab == "connected" ? "text-white" : "text-gray-400"
           }`}
@@ -57,7 +62,10 @@ const UsersTabs = ({ userDetails, handleSelectChat }) => {
           Connected Peoples
         </button>
         <button
-          onClick={() => setActiveTab("pending")}
+          onClick={() => {
+            setActiveTab("pending");
+            handleChangetabs();
+          }}
           className={`absolute  w-1/2 flex items-center justify-center transition-all duration-300 ease-in-out z-30 p-3 right-0 cursor-pointer ${
             activeTab == "pending" ? "text-white" : "text-gray-400"
           }`}
@@ -93,7 +101,33 @@ const UsersTabs = ({ userDetails, handleSelectChat }) => {
                     src={friend?.profile_pic}
                     className=" h-12 w-12 rounded-full"
                   />
-                  <h1>{friend?.full_name}</h1>
+                  <div>
+                    <h1 className=" font-medium text-gray-900 ">
+                      {friend?.full_name}
+                    </h1>
+                    <p className=" text-xs text-gray-600">
+                      {(() => {
+                        const chat = peoplesChatLists?.find((item) =>
+                          item?.chatKey?.split("_").includes(friend?._id)
+                        );
+                        const lastMessage =
+                          chat?.messages?.[chat.messages.length - 1];
+
+                        if (!lastMessage) {
+                          return "No message";
+                        }
+
+                        if (
+                          lastMessage.message === "" &&
+                          lastMessage.mediaFile
+                        ) {
+                          return `${lastMessage.username}: Photo`;
+                        }
+
+                        return `${lastMessage.username}: ${lastMessage.message}`;
+                      })()}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

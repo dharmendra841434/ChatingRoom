@@ -94,3 +94,9 @@ export const cancelRecivedFriendRequest = async (payload) => {
   );
   return response.data || response; // Assuming the response contains the data
 };
+
+// Function to fetch all users data
+export const getPeoplesChats = async (query) => {
+  const response = await axiosInstance.get(`/auth/friends-chat`);
+  return response.data || response; // Assuming the response contains the data
+};

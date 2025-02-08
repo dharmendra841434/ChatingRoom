@@ -156,14 +156,20 @@ const getDetails = async (req, res) => {
       ) || []
     );
 
-    // Fetch pending request users in parallel
     const allFriends = await Promise.all(
-      user.friends?.map((requesterId) =>
-        User.findById(requesterId?.userId).select(
+      user.friends?.map(async ({ userId, chatKey }) => {
+        const friend = await User.findById(userId?.$oid || userId).select(
           "-password -sendedRequests -recivedRequests -updatedAt -createdAt"
-        )
-      ) || []
+        );
+        if (friend) {
+          return { ...friend.toObject(), chatKey };
+        }
+        return null;
+      }) || []
     );
+
+    // Filter out null values if any users were not found
+    const filteredFriends = allFriends.filter(Boolean);
 
     // Send user details as a response
     return res.status(200).json({
@@ -178,7 +184,7 @@ const getDetails = async (req, res) => {
         },
         sendedRequestsUsers,
         recivedRequestsUsers,
-        allFriends,
+        allFriends: filteredFriends,
       },
     });
   } catch (error) {
@@ -186,6 +192,34 @@ const getDetails = async (req, res) => {
     res
       .status(500)
       .json({ message: "An error occurred while fetching user details" });
+  }
+};
+
+const getChatDataByUserId = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    // Find chats where userId is part of the chatKey
+    const chats = await UserChat.find({
+      chatKey: { $regex: userId }, // Checks if userId is included in chatKey
+    });
+
+    // Respond with the retrieved chats
+    if (chats.length > 0) {
+      return res.status(200).json(chats);
+    } else {
+      return res
+        .status(404)
+        .json({ message: "No chats found for the given userId" });
+    }
+  } catch (error) {
+    console.error("Error fetching chat data:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -468,4 +502,5 @@ export {
   acceptFriendRequest,
   cancelRecievedRequest,
   cancelSendedRequest,
+  getChatDataByUserId,
 };

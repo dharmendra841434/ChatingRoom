@@ -18,6 +18,7 @@ const DashboardTab = ({
   handleSelectOption,
   userDetails,
   handleSelectChat,
+  handleChangeUserstabs,
 }) => {
   const [activeTab, setActiveTab] = useState("groups");
   const [allUsers, setAllUsers] = useState([]);
@@ -122,6 +123,7 @@ const DashboardTab = ({
               handleSelectChat={(chat) => {
                 handleSelectChat(chat);
               }}
+              handleChangetabs={handleChangeUserstabs}
             />
           </div>
         )}

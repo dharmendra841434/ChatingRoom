@@ -65,6 +65,7 @@ const DashboardPage = () => {
       // Add the new message object to the state
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("chatMessage", data);
+
       setInput("");
     }
   };
@@ -88,6 +89,8 @@ const DashboardPage = () => {
       // Add the new message object to the state
       setUserChatMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("sendUserMessage", data);
+
+      //console.log("query runnnn");
       setInput("");
     }
   };
@@ -130,7 +133,6 @@ const DashboardPage = () => {
     // Add the new message object to the state
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     await uploadFile(selectedFile).then((result) => {
-      //console.log(result, "result");
       const data = {
         groupKey: activeConversation.data?.groupKey,
         username: userDetails?.data?.user?.username,
@@ -139,6 +141,7 @@ const DashboardPage = () => {
           url: result,
         },
       };
+      //console.log(data, "result");
       socket.emit("chatMessage", data);
     });
   };
@@ -154,6 +157,8 @@ const DashboardPage = () => {
       },
       timestamp: new Date().toISOString(), // Use current timestamp
     };
+
+    // console.log(newMessage, "newjghg");
 
     // Add the new message object to the state
     setUserChatMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -186,7 +191,7 @@ const DashboardPage = () => {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, userChatMessages]);
 
   const handleSelectChat = async (chat) => {
     // console.log(chat, "asjdguafdy");
@@ -197,19 +202,34 @@ const DashboardPage = () => {
   };
 
   useEffect(() => {
-    if (
-      activeConversation?.data !== null &&
-      userDetails?.data?.user?.username
-    ) {
+    if (!activeConversation?.data || !userDetails?.data?.user?.username) return;
+
+    if (activeConversation.type === "group") {
+      console.log("data changes");
       const data = {
-        groupKey: activeConversation?.data?.groupKey,
-        username: userDetails?.data?.user?.username,
+        groupKey: activeConversation.data.groupKey,
+        username: userDetails.data.user.username,
       };
       socket.emit("joinGroup", data);
     }
 
-    const handleMessages = ({ messages }) => {
+    if (activeConversation.type === "user") {
+      const data = {
+        chatKey: activeConversation.data.chatKey,
+        username: userDetails.data.user.username,
+      };
+      socket.emit("joinChat", data);
+    }
+
+    const handleReciveUserMessages = ({ messages }) => {
       setUserChatMessages(messages);
+      invalidateQuery("peoplesChats");
+      setInput("");
+    };
+    const handleReciveGroupMessages = ({ messages }) => {
+      console.log(messages, "recived group messages");
+      setMessages(messages);
+      invalidateQuery("groupsList");
       setInput("");
     };
 
@@ -221,9 +241,13 @@ const DashboardPage = () => {
     socket.on("joinedGroup", ({ message, messages }) => {
       setMessages(messages);
     });
+    socket.on("joinedChat", ({ message, messages }) => {
+      console.log(message);
+      setUserChatMessages(messages);
+    });
 
-    socket.on("receiveMessages", handleMessages);
-    socket.on("receiveUserMessages", handleMessages);
+    socket.on("receiveMessages", handleReciveGroupMessages);
+    socket.on("receiveUserMessages", handleReciveUserMessages);
     socket.on("receiveNotification", handleNotification);
 
     return () => {
@@ -232,10 +256,11 @@ const DashboardPage = () => {
       socket.off("receiveMessages");
       socket.off("receiveUserMessages");
       socket.off("receiveNotification");
+      socket.off("joinedChat");
     };
   }, [socket, activeConversation, userDetails]);
 
-  // console.log(activeConversation, "userDetails");
+  //console.log(activeConversation, "userDetails");
 
   return (
     <div className="flex h-screen max-w-[96rem] mx-auto ">
@@ -244,6 +269,12 @@ const DashboardPage = () => {
         handleStartConversation={setActiveConversation}
         userDetails={userDetails?.data}
         handleSelectChat={handleSelectChat}
+        handleChangeUserstabs={() =>
+          setActiveConversation({
+            type: "",
+            data: null,
+          })
+        }
       />
       <CustomModal isOpen={isOpenModal} onClose={setIsOpenModal}>
         <div className=" p-6">
@@ -267,7 +298,13 @@ const DashboardPage = () => {
             </div>
           )}
           <button
-            onClick={handleUpload}
+            onClick={() => {
+              if (activeConversation?.type === "group") {
+                handleUpload();
+              } else {
+                handleUserChatUpload();
+              }
+            }}
             className=" mt-5 bg-foreground rounded-lg px-5 py-2 text-white hover:bg-purple-900"
           >
             Send File
@@ -316,7 +353,7 @@ const DashboardPage = () => {
               <StartUserChat
                 chatContainerRef={chatContainerRef}
                 chatData={activeConversation?.data}
-                handleFileSelect={handleUserChatUpload}
+                handleFileSelect={handleFileSelect}
                 handleSendMessage={handleSendUserMessage}
                 handleViewProfile={handleViewProfile}
                 messages={userChatMessages}

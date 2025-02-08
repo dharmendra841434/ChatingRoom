@@ -126,6 +126,7 @@ const StartGroupChat = ({
                     <span className=" text-gray-500 text-xs">
                       {timeAgo(message.timestamp)}
                     </span>
+
                     {typeof message?.mediaFile.url !== "string" && (
                       <p>{progress}%</p>
                     )}
