@@ -73,13 +73,21 @@ io.on("connection", (socket) => {
   // Handle chat messages
   socket.on(
     "chatMessage",
-    async ({ groupKey, message = "", username, mediaFile = null }) => {
+    async ({ groupKey, message = "", username, mediaFile = null, userId }) => {
       console.log(
         `Message from ${username} in room ${groupKey}: ${message} ${mediaFile?.url}`
       );
       const group = await Group.findOne({ groupKey });
       if (group) {
-        group.messages.push({ username, message, mediaFile });
+        // Add the new message and mark the sender as having read it
+        const newMessage = {
+          username,
+          message,
+          mediaFile,
+          read: [userId], // Add the sender's userId to the read array
+        };
+
+        group.messages.push(newMessage);
         await group.save();
       }
 
@@ -108,7 +116,7 @@ io.on("connection", (socket) => {
     console.log(` Notification: ${message}`);
 
     io.emit("receiveNotification", {
-      messages: "Notification Recived",
+      messages: ` Notification: ${message}`,
     });
   });
 

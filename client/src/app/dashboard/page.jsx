@@ -53,6 +53,7 @@ const DashboardPage = () => {
         message: input,
         groupKey: activeConversation.data?.groupKey,
         username: userDetails?.data?.user?.username,
+        userId: userDetails?.data?.user?._id,
       };
 
       const newMessage = {
@@ -60,12 +61,13 @@ const DashboardPage = () => {
         message: input,
         mediaFile: null,
         timestamp: new Date().toISOString(), // Use current timestamp
+        read: [userDetails?.data?.user?._id],
       };
 
       // Add the new message object to the state
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("chatMessage", data);
-
+      socket.emit("sendNotification", { message: "sending message" });
       setInput("");
     }
   };
@@ -127,6 +129,7 @@ const DashboardPage = () => {
         mediaType: "image",
         url: selectedFile,
       },
+      read: [userDetails?.data?.user?._id],
       timestamp: new Date().toISOString(), // Use current timestamp
     };
 
@@ -140,9 +143,11 @@ const DashboardPage = () => {
           mediaType: "image",
           url: result,
         },
+        userId: userDetails?.data?.user?._id,
       };
       //console.log(data, "result");
       socket.emit("chatMessage", data);
+      socket.emit("sendNotification", { message: "sending file" });
     });
   };
 
@@ -227,15 +232,10 @@ const DashboardPage = () => {
       setInput("");
     };
     const handleReciveGroupMessages = ({ messages }) => {
-      console.log(messages, "recived group messages");
+      //console.log(messages, "recived group messages");
       setMessages(messages);
       invalidateQuery("groupsList");
       setInput("");
-    };
-
-    const handleNotification = (data) => {
-      console.log(data, "reciveNotification");
-      invalidateQuery("userDetails");
     };
 
     socket.on("joinedGroup", ({ message, messages }) => {
@@ -248,14 +248,13 @@ const DashboardPage = () => {
 
     socket.on("receiveMessages", handleReciveGroupMessages);
     socket.on("receiveUserMessages", handleReciveUserMessages);
-    socket.on("receiveNotification", handleNotification);
 
     return () => {
       // Clean up all event listeners
       socket.off("joinedGroup");
       socket.off("receiveMessages");
       socket.off("receiveUserMessages");
-      socket.off("receiveNotification");
+
       socket.off("joinedChat");
     };
   }, [socket, activeConversation, userDetails]);

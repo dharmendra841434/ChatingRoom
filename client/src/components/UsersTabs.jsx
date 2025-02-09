@@ -3,9 +3,10 @@ import {
   cancelRecivedFriendRequest,
 } from "@/hooks/ApiRequiests/userApi";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import IphoneLoader from "./loaders/IphoneLoader";
 import useGetAllPeoplesChat from "@/hooks/authenticationHooks/useGetAllPeoplesChat";
+import { useSocket } from "@/services/SocketProvider";
 
 const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
   const [activeTab, setActiveTab] = useState("connected");

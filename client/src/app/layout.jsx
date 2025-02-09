@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SocketProvider } from "@/services/SocketProvider";
 import React from "react";
+import HighOrderComponent from "@/components/HOC";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SocketProvider>{children}</SocketProvider>
+        <SocketProvider>
+          <HighOrderComponent>{children}</HighOrderComponent>
+        </SocketProvider>
         <div id="modal"></div>
       </body>
     </html>

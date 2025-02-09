@@ -143,4 +143,64 @@ const deleteGroup = async (req, res) => {
   }
 };
 
-export { getAllGroupsOfUser, createNewGroup, joinGroup, deleteGroup };
+// Mark a message as read by adding userId to the read array
+const markMessageAsRead = async (req, res) => {
+  try {
+    const { groupId, messageId, userId } = req.body;
+
+    if (!groupId || !messageId || !userId) {
+      return res
+        .status(400)
+        .json({ error: "groupId, messageId, and userId are required" });
+    }
+
+    const group = await Group.findOneAndUpdate(
+      { _id: groupId, "messages._id": messageId },
+      { $addToSet: { "messages.$.read": userId } }, // Add userId only if not already present
+      { new: true }
+    );
+
+    if (!group) {
+      return res.status(404).json({ error: "Group or message not found" });
+    }
+
+    res.status(200).json({ message: "Message marked as read", group });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+const markAllMessagesAsRead = async (req, res) => {
+  try {
+    const { groupId, userId } = req.body;
+
+    if (!groupId || !userId) {
+      return res.status(400).json({ error: "groupId and userId are required" });
+    }
+
+    // Update the group to mark all messages as read by adding userId to the read array for each message
+    const group = await Group.findOneAndUpdate(
+      { _id: groupId },
+      { $addToSet: { "messages.read": userId } }, // Add userId to the "read" array for all messages
+      { new: true }
+    );
+
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    // Ensure no duplicates for userId in the "read" array by adding it for all messages
+    res.status(200).json({ message: "All messages marked as read", group });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+export {
+  getAllGroupsOfUser,
+  createNewGroup,
+  joinGroup,
+  deleteGroup,
+  markMessageAsRead,
+  markAllMessagesAsRead,
+};

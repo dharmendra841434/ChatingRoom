@@ -25,6 +25,7 @@ const UserChatSchema = new mongoose.Schema({
             type: String,
           },
         },
+        read: { type: [String], default: [] },
       },
     ],
     default: [],

@@ -40,6 +40,7 @@ const UserSchema = new mongoose.Schema(
       default: [],
       _id: false,
     },
+    profileIconColor: { type: String, required: true },
   },
   {
     timestamps: true,

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import UserChat from "../models/userChat.js";
-import { createUserObjects } from "../utils/helper.js";
+import { createUserObjects, getRandomHexColor } from "../utils/helper.js";
 
 const registerUser = async (req, res) => {
   try {
@@ -25,6 +25,7 @@ const registerUser = async (req, res) => {
       password,
       profile_pic,
       isActive,
+      profileIconColor: getRandomHexColor(),
     });
 
     // Save the user to the database
@@ -214,7 +215,7 @@ const getChatDataByUserId = async (req, res) => {
       return res.status(200).json(chats);
     } else {
       return res
-        .status(404)
+        .status(200)
         .json({ message: "No chats found for the given userId" });
     }
   } catch (error) {

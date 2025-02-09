@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 import ProfileLoader from "./loaders/ProfileLoader";
 import UsersTabs from "./UsersTabs";
 import ProfileIcon from "./ProfileIcon";
+import { hasUserReadLastMessage } from "@/services/helper";
 
 const DashboardTab = ({
   handleStartConversation,
@@ -170,7 +171,18 @@ const DashboardTab = ({
                               data: group,
                             })
                           }
-                          className="bg-white drop-shadow-sm rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200"
+                          className={`${
+                            group?.messages?.length > 0
+                              ? `${
+                                  hasUserReadLastMessage(
+                                    group,
+                                    userDetails?.user
+                                  )
+                                    ? " bg-white"
+                                    : " bg-green-100"
+                                }`
+                              : "bg-white"
+                          }  drop-shadow-sm rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200`}
                         >
                           <div className=" flex items-center space-x-3 ">
                             {/* <img
@@ -188,7 +200,16 @@ const DashboardTab = ({
                                 {group.groupName}
                               </h2>
                               {group?.messages?.length > 0 && (
-                                <div className=" text-xs">
+                                <div
+                                  className={`text-xs my-2 ${
+                                    hasUserReadLastMessage(
+                                      group,
+                                      userDetails?.user
+                                    )
+                                      ? " text-gray-600"
+                                      : " text-gray-900 font-semibold"
+                                  }`}
+                                >
                                   {group?.messages[group.messages?.length - 1]
                                     ?.mediaFile !== null ? (
                                     <>
@@ -202,13 +223,13 @@ const DashboardTab = ({
                                       </p>
                                     </>
                                   ) : (
-                                    <p className="text-xs my-2 text-gray-600 ">
+                                    <p>
                                       {
                                         group?.messages[
                                           group.messages?.length - 1
                                         ]?.username
-                                      }{" "}
-                                      :{" "}
+                                      }
+                                      :
                                       {
                                         group?.messages[
                                           group.messages?.length - 1

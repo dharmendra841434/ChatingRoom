@@ -48,3 +48,13 @@ export function getInitials(fullName) {
     ?.map((word) => word?.charAt(0)?.toUpperCase()) // Get first letter of each word and uppercase it
     ?.join(""); // Join them together
 }
+
+export const hasUserReadLastMessage = (group, user) => {
+  const userId = user?._id;
+  if (!group?.messages?.length || !userId) {
+    return false; // No messages or userId provided
+  }
+  const lastMessage = group.messages[group.messages.length - 1];
+
+  return lastMessage?.read?.includes(userId) ? true : false;
+};
