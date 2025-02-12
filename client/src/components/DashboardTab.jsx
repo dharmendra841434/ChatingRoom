@@ -12,7 +12,7 @@ import Cookies from "js-cookie";
 import ProfileLoader from "./loaders/ProfileLoader";
 import UsersTabs from "./UsersTabs";
 import ProfileIcon from "./ProfileIcon";
-import { hasUserReadLastMessage } from "@/services/helper";
+import { countUnreadMessages, hasUserReadLastMessage } from "@/services/helper";
 
 const DashboardTab = ({
   handleStartConversation,
@@ -31,7 +31,7 @@ const DashboardTab = ({
     router.push("/");
   };
 
-  //console.log(userDetails, "jgjgghgh");
+  //console.log(groupsList, "groupsList");
 
   return (
     <div className="w-full max-w-md mx-auto  border-r border-r-gray-200 bg-white">
@@ -184,6 +184,18 @@ const DashboardTab = ({
                               : "bg-white"
                           }  drop-shadow-sm rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200`}
                         >
+                          {countUnreadMessages(
+                            group?.messages,
+                            userDetails?.user?._id
+                          ) !== 0 && (
+                            <div className=" absolute bg-red-500  h-6 w-6 text-xs text-white right-5 rounded-full flex items-center justify-center ">
+                              {countUnreadMessages(
+                                group?.messages,
+                                userDetails?.user?._id
+                              )}
+                            </div>
+                          )}
+
                           <div className=" flex items-center space-x-3 ">
                             {/* <img
                               src="/groupIcon.webp"

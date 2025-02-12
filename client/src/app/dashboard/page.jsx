@@ -214,6 +214,7 @@ const DashboardPage = () => {
       const data = {
         groupKey: activeConversation.data.groupKey,
         username: userDetails.data.user.username,
+        userId: userDetails.data.user._id,
       };
       socket.emit("joinGroup", data);
     }
@@ -240,6 +241,7 @@ const DashboardPage = () => {
 
     socket.on("joinedGroup", ({ message, messages }) => {
       setMessages(messages);
+      invalidateQuery("groupsList");
     });
     socket.on("joinedChat", ({ message, messages }) => {
       console.log(message);
@@ -258,8 +260,6 @@ const DashboardPage = () => {
       socket.off("joinedChat");
     };
   }, [socket, activeConversation, userDetails]);
-
-  //console.log(activeConversation, "userDetails");
 
   return (
     <div className="flex h-screen max-w-[96rem] mx-auto ">

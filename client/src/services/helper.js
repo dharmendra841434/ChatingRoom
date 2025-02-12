@@ -58,3 +58,11 @@ export const hasUserReadLastMessage = (group, user) => {
 
   return lastMessage?.read?.includes(userId) ? true : false;
 };
+
+export function countUnreadMessages(messages, userId) {
+  if (!Array.isArray(messages)) {
+    throw new Error("Invalid messages array");
+  }
+
+  return messages.filter((message) => !message.read.includes(userId)).length;
+}
