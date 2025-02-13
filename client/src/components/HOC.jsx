@@ -1,10 +1,14 @@
 "use client";
 
+import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import { messaging } from "@/services/firebaseConfig";
+import { useSocket } from "@/services/SocketProvider";
 import { getToken, onMessage } from "firebase/messaging";
 import React, { useEffect } from "react";
 
 const HighOrderComponent = ({ children }) => {
+  const invalidateQuery = useInvalidateQuery();
+  const socket = useSocket();
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -44,6 +48,12 @@ const HighOrderComponent = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    socket.on("receiveNotification", () => {
+      invalidateQuery("groupsList");
+    });
+  }, [socket]);
 
   return <div>{children}</div>;
 };

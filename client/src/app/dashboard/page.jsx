@@ -210,13 +210,15 @@ const DashboardPage = () => {
     if (!activeConversation?.data || !userDetails?.data?.user?.username) return;
 
     if (activeConversation.type === "group") {
-      console.log("data changes");
+      //console
+      // .log("data changes");
       const data = {
         groupKey: activeConversation.data.groupKey,
         username: userDetails.data.user.username,
         userId: userDetails.data.user._id,
       };
       socket.emit("joinGroup", data);
+      socket.emit("sendNotification", { message: "sending message" });
     }
 
     if (activeConversation.type === "user") {
