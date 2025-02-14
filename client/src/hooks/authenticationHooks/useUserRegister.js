@@ -1,40 +1,23 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
 import { registerRequest } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useUserRegister = ({ handleSucces }) => {
-  //const queryClient = useQueryClient(); // Get the query client instance
   const {
     mutate: userRegister,
     isPending: userRegisterLoading,
     isSuccess: userRegisterSuccess,
   } = useMutation({
-    mutationFn: (payload) => registerRequest(payload), // Call the function to create a new group
+    mutationFn: (payload) => registerRequest(payload),
     onSuccess: () => {
       handleSucces();
-      toast.success("User Register successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      //queryClient.invalidateQueries(["groupsList"]);
+      showToast("success", "✅ User registered successfully!");
     },
     onError: (error) => {
-      toast.error(`Registration failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast(
+        "error",
+        `❌ Registration failed:${error?.response?.data?.message}`
+      );
     },
   });
 

@@ -1,30 +1,46 @@
 import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import UserSearch from "./UserSearch";
-import { useSocket } from "@/services/SocketProvider";
 import useJoinGroup from "@/hooks/groupHooks/useJoinGroup";
 import useCreateGroup from "@/hooks/groupHooks/useCreateGroup";
+import { messaging } from "@/services/firebaseConfig";
+import { getToken } from "firebase/messaging";
 
 const SelectedOptions = ({ show, handleClose }) => {
-  const socket = useSocket();
   const [groupName, setGroupName] = useState("");
   const [groupKey, setGroupKey] = useState("");
-  const { createGroup, createGroupLoading, createGroupSuccess } =
-    useCreateGroup();
-  const { joinGroup, joinGroupLoading, joinGroupSuccess } = useJoinGroup();
+  const { createGroup } = useCreateGroup();
+  const { joinGroup } = useJoinGroup({
+    handleClose: handleClose,
+  });
 
-  const handleCreateGroup = (e) => {
-    // e.preventDefault();
-    createGroup({ groupName });
-    handleClose();
-    setGroupName("");
+  const handleCreateGroup = async (e) => {
+    e.preventDefault();
+    const deviceToken = await getToken(messaging, {
+      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
+    });
+    if (deviceToken) {
+      // console.log("FCM Token:", deviceToken);
+      createGroup({ groupName, deviceToken }); // Uncomment when needed
+      handleClose();
+      setGroupName("");
+    } else {
+      console.log("No registration token available.");
+    }
   };
 
-  const handleJoinGroup = (e) => {
-    // e.preventDefault();
-    joinGroup({ groupKey: groupKey });
-    handleClose();
-    setGroupKey("");
+  const handleJoinGroup = async (e) => {
+    e.preventDefault();
+    const deviceToken = await getToken(messaging, {
+      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
+    });
+
+    if (deviceToken) {
+      joinGroup({ groupKey: groupKey });
+      setGroupKey("");
+    } else {
+      console.log("No registration token available.");
+    }
   };
 
   return (

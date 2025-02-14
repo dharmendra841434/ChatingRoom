@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { updateUserDetails } from "../utility/api/userApi";
 import { useNavigate } from "react-router-dom";
+import showToast from "@/services/ShowToast";
 
 const useUpdateUserDetails = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient(); // Get the query client instance
+
   const {
     mutate: updateUser,
     data: successData,
@@ -19,30 +20,12 @@ const useUpdateUserDetails = () => {
         data: data,
       }),
     onSuccess: () => {
-      toast.success("User details updated successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("success", "✅ User details updated successfully!");
       queryClient.invalidateQueries(["usersList"]);
       navigate(-1);
     },
     onError: (error) => {
-      toast.error(`Update failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("error", `❌ Update failed: ${error.message}`);
     },
   });
 

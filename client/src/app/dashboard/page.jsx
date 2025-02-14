@@ -1,26 +1,18 @@
 "use client";
-import ChatImage from "@/components/ChatImage";
 import CustomModal from "@/components/CustomModal";
 import DashboardTab from "@/components/DashboardTab";
 import SelectedOptions from "@/components/SelectedOptions";
 import StartGroupChat from "@/components/StartGroupChat";
 import StartUserChat from "@/components/StartUserChat";
-import ThreeDotOptions from "@/components/ThreeDotOptions";
 import UserProfileCard from "@/components/UserProfile";
-import {
-  getUserProfile,
-  sendFriendRequest,
-} from "@/hooks/ApiRequiests/userApi";
+import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
-import { timeAgo } from "@/services/helper";
 import { useSocket } from "@/services/SocketProvider";
 import React, { useEffect, useRef, useState } from "react";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
-import { MdOutlineLink } from "react-icons/md";
 
 const DashboardPage = () => {
   const [messages, setMessages] = useState([]);

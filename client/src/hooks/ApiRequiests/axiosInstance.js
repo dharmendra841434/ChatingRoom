@@ -1,3 +1,4 @@
+import showToast from "@/services/ShowToast";
 import axios from "axios";
 
 const Url =
@@ -37,7 +38,8 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       // Dispatch logout action (or handle as needed)
       // Example: store.dispatch(logout());
-      console.log("Unauthorized. Token might be invalid or expired.");
+      //console.log("Unauthorized. Token might be invalid or expired.");
+      //showToast("error", "Unauthorized. Token might be invalid or expired.");
     }
     return Promise.reject(error);
   }

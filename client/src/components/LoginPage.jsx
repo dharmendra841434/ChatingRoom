@@ -20,7 +20,7 @@ const LoginPage = ({ setActiveTab }) => {
         password,
       },
     });
-    console.log(success, "success");
+    //console.log(success, "success");
   };
 
   return (

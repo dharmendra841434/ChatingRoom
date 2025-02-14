@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getPeoplesChats, getUserDetails } from "../ApiRequiests/userApi";
+import { getPeoplesChats } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useGetAllPeoplesChat = () => {
-  // Use the createdBy value in the query
   const {
     data: peoplesChatLists,
     isLoading,
@@ -12,7 +12,10 @@ const useGetAllPeoplesChat = () => {
     error,
   } = useQuery({
     queryKey: ["peoplesChats"], // Unique key for caching
-    queryFn: () => getPeoplesChats(), // Fetch function
+    queryFn: () => getPeoplesChats(),
+    onError: (err) => {
+      showToast("error", `⚠️ Failed to fetch chats: ${err.message}`);
+    },
   });
 
   return { peoplesChatLists, isLoading, isError, error };

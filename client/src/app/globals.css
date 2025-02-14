@@ -35,3 +35,9 @@ body {
   background-color: #f5f6f8; /* Scrollbar track color (light gray) */
 }
 
+/* Custom toast styling */
+.Toastify__toast {
+  font-size: 14px !important; /* Change the font size */
+  font-family:sans-serif; /* Optional: Change font family */
+  /* background-color: #6559a2; */
+}

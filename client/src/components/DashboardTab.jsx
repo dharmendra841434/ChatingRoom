@@ -22,7 +22,6 @@ const DashboardTab = ({
   handleChangeUserstabs,
 }) => {
   const [activeTab, setActiveTab] = useState("groups");
-  const [allUsers, setAllUsers] = useState([]);
   const { groupsList, isLoading } = useGetUserGroupsList();
   const router = useRouter();
 
@@ -281,7 +280,7 @@ const DashboardTab = ({
             <button onClick={handleLogout}>
               <HiOutlineLogout
                 title="logout"
-                className=" transition-all duration-300 ease-in-out hover:scale-125 text-purple-900 cursor-pointer "
+                className=" text-3xl transition-all duration-300 ease-in-out hover:scale-125 text-purple-900 cursor-pointer "
               />
             </button>
           </div>

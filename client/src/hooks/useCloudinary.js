@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import showToast from "@/services/ShowToast";
 
 const useCloudinaryUpload = () => {
   const [url, setUrl] = useState("");
@@ -31,22 +31,16 @@ const useCloudinaryUpload = () => {
           },
         }
       );
+
       setUrl(res.data.url);
+      showToast("success", "✅ Image uploaded successfully!");
       return res.data.secure_url;
     } catch (err) {
-      console.error("Error uploading image: ", err);
-      setError(
-        err.response?.data?.message || "An error occurred during upload."
-      );
-      toast.error(
-        err.response?.data?.message || "An error occurred during upload.",
-        {
-          theme: "colored",
-          position: "top-center",
-          autoClose: 1000,
-          hideProgressBar: true,
-        }
-      );
+      console.error("Error uploading image:", err);
+      const errorMessage =
+        err.response?.data?.message || "❌ An error occurred during upload.";
+      setError(errorMessage);
+      showToast("error", errorMessage);
     } finally {
       setLoading(false);
     }

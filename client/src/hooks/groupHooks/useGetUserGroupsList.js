@@ -2,17 +2,23 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getAllGroups } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useGetUserGroupsList = () => {
-  // Use the createdBy value in the query
   const {
     data: groupsList,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["groupsList"], // Unique key for caching
-    queryFn: () => getAllGroups(), // Fetch function
+    queryKey: ["groupsList"],
+    queryFn: () => getAllGroups(),
+    onError: (error) => {
+      showToast(
+        "error",
+        `❌ Failed to fetch groups: ${error?.response?.data?.message}`
+      );
+    },
   });
 
   return { groupsList, isLoading, isError, error };

@@ -1,37 +1,33 @@
-// firebaseConfig.ts
 import { initializeApp } from "firebase/app";
-import { getMessaging, isSupported } from "firebase/messaging/sw";
+import { getMessaging, isSupported } from "firebase/messaging";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STRONG_BUCKET,
-  messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_FIREBASE_MESSANGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyBcz-nb0gkF0QrXpnU6dzZRJ-fk4d2diKE",
+  authDomain: "pingpong-8a4de.firebaseapp.com",
+  projectId: "pingpong-8a4de",
+  storageBucket: "pingpong-8a4de.firebasestorage.app",
+  messagingSenderId: "19261653214",
+  appId: "1:19261653214:web:b04dfb9d131784b1c0c24f",
+  measurementId: "G-7VYEXTJJNN",
 };
 
-//console.log(firebaseConfig, "ASDHAJS");
-
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const messaging = (async () => {
-  try {
-    const isSupportedBrowser = await isSupported();
-    if (isSupportedBrowser) {
-      return getMessaging(app);
+
+// Initialize messaging only if supported
+let messaging;
+isSupported()
+  .then((supported) => {
+    if (supported) {
+      messaging = getMessaging(app);
+      console.log("Firebase Messaging initialized.");
+    } else {
+      console.warn("Firebase Messaging is not supported in this browser.");
     }
-    console.log("Firebase not supported this browser");
-    return null;
-  } catch (err) {
-    console.log(err);
-    return null;
-  }
-})();
+  })
+  .catch((err) =>
+    console.error("Error checking Firebase Messaging support:", err)
+  );
 
-//console.log(messaging, "hfyffyfy");
-
-export { messaging };
+export { app, messaging };

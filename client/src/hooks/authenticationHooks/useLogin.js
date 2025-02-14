@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { loginRequest } from "../ApiRequiests/userApi";
 import Cookies from "js-cookie";
+import { loginRequest } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useLoginUser = () => {
   const router = useRouter();
@@ -15,37 +15,18 @@ const useLoginUser = () => {
   } = useMutation({
     mutationFn: ({ data }) => loginRequest(data),
     onSuccess: (data) => {
-      toast.success("User logged in successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("success", "✅ User logged in successfully!");
 
-      // console.log(data, "data");
       localStorage.setItem("token", data?.data?.token);
-      //cookies.set("accessToken", data?.data?.token);
       Cookies.set("accessToken", data?.data?.token, { expires: 7 });
+
       router.push("/dashboard");
     },
     onError: (error) => {
-      toast.error(`login failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      console.log(error, "sdkwei");
+      showToast("error", `❌ Login failed: ${error?.response?.data?.message}`);
     },
   });
-  //console.log(mutated, "mutate");
 
   return { loginUser, success, isLoading, LoginError };
 };

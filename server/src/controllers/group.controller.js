@@ -39,7 +39,7 @@ const getAllGroupsOfUser = async (req, res) => {
 
 const createNewGroup = async (req, res) => {
   try {
-    const { userId, groupName } = req.body;
+    const { userId, groupName, deviceToken } = req.body;
 
     // Validate input
     if (!userId || !groupName) {
@@ -63,6 +63,7 @@ const createNewGroup = async (req, res) => {
       messages: [],
       owner: userId,
       groupIconColor: getRandomHexColor(),
+      usersDeviceToken: [deviceToken],
     });
 
     // Send success response
@@ -79,7 +80,7 @@ const createNewGroup = async (req, res) => {
 
 const joinGroup = async (req, res) => {
   try {
-    const { userId, groupKey } = req.body;
+    const { userId, groupKey, deviceToken } = req.body;
 
     // Validate input
     if (!userId || !groupKey) {
@@ -92,7 +93,7 @@ const joinGroup = async (req, res) => {
     const group = await Group.findOneAndUpdate(
       { groupKey },
       {
-        $addToSet: { allUsers: { userId } },
+        $addToSet: { allUsers: { userId }, usersDeviceToken: deviceToken },
       },
       { new: true } // Returns the updated group
     );

@@ -38,6 +38,7 @@ const GroupSchema = new mongoose.Schema({
   },
   owner: { type: String, required: true },
   groupIconColor: { type: String, required: true },
+  usersDeviceToken: { type: [String], default: [] },
 });
 
 const Group = mongoose.model("groups", GroupSchema);

@@ -2,9 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getUserDetails } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useGetUserDetails = () => {
-  // Use the createdBy value in the query
   const {
     data: userDetails,
     isLoading,
@@ -12,7 +12,10 @@ const useGetUserDetails = () => {
     error,
   } = useQuery({
     queryKey: ["userDetails"], // Unique key for caching
-    queryFn: () => getUserDetails(), // Fetch function
+    queryFn: () => getUserDetails(),
+    onError: (err) => {
+      showToast("error", `⚠️ Failed to fetch user details: ${err.message}`);
+    },
   });
 
   return { userDetails, isLoading, isError, error };

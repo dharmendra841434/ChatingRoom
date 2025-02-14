@@ -23,20 +23,20 @@ const HighOrderComponent = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
-    })
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log("FCM Token:", currentToken);
-          //setToken(currentToken);
-        } else {
-          console.log("No registration token available.");
-        }
-      })
-      .catch((err) =>
-        console.log("An error occurred while retrieving token:", err)
-      );
+    // getToken(messaging, {
+    //   vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
+    // })
+    //   .then((currentToken) => {
+    //     if (currentToken) {
+    //       console.log("FCM Token:", currentToken);
+    //       //setToken(currentToken);
+    //     } else {
+    //       console.log("No registration token available.");
+    //     }
+    //   })
+    //   .catch((err) =>
+    //     console.log("An error occurred while retrieving token:", err)
+    //   );
 
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log("Message received.", payload);

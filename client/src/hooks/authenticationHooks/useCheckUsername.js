@@ -1,54 +1,24 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
 import { checkUsernameRequest } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useCheckUsername = () => {
-  //const queryClient = useQueryClient(); // Get the query client instance
   const {
     mutate: checkUsername,
     isPending: checkUsernameLoading,
     isSuccess: checkUsernameSuccess,
     data: checkUsernameData,
   } = useMutation({
-    mutationFn: (payload) => checkUsernameRequest(payload), // Call the function to create a new group
+    mutationFn: (payload) => checkUsernameRequest(payload),
     onSuccess: (data) => {
       if (data?.data?.isAvailable) {
-        toast.success("This username available", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("success", "✅ This username is available!");
       } else {
-        toast.error(`Username not available`, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("error", "❌ Username not available!");
       }
-
-      //queryClient.invalidateQueries(["groupsList"]);
     },
     onError: (error) => {
-      toast.error(`Update failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("error", `⚠️ Update failed: ${error.message}`);
     },
   });
 

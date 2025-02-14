@@ -1,39 +1,25 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { createGroupRequest } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useCreateGroup = () => {
   const queryClient = useQueryClient(); // Get the query client instance
+
   const {
     mutate: createGroup,
     isPending: createGroupLoading,
     isSuccess: createGroupSuccess,
   } = useMutation({
-    mutationFn: (payload) => createGroupRequest(payload), // Call the function to create a new group
+    mutationFn: (payload) => createGroupRequest(payload),
     onSuccess: () => {
-      toast.success("Group created successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("success", "✅ Group created successfully!");
       queryClient.invalidateQueries(["groupsList"]);
     },
     onError: (error) => {
-      toast.error(`Group failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast(
+        "error",
+        `❌ Group creation failed: ${error?.response?.data?.message}`
+      );
     },
   });
 

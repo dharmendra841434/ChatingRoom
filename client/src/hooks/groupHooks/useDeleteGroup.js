@@ -1,48 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { deleteGroupRequest } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
 const useDeleteGroup = ({ setActiveConversation, setThreedot }) => {
   const queryClient = useQueryClient(); // Get the query client instance
+
   const {
     mutate: deleteGroup,
     isPending: deleteGroupLoading,
     isSuccess: deleteGroupSuccess,
   } = useMutation({
-    mutationFn: (groupKey) => deleteGroupRequest(groupKey), // Call the function to delete a group
+    mutationFn: (groupKey) => deleteGroupRequest(groupKey),
     onSuccess: () => {
-      toast.success("Group deleted successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        //theme: "colored",
-      });
+      showToast("success", "✅ Group deleted successfully!");
       queryClient.invalidateQueries(["groupsList"]);
-      setActiveConversation({
-        type: "",
-        data: null,
-      });
+      // Reset active conversation and menu state
+      setActiveConversation({ type: "", data: null });
       setThreedot(false);
     },
     onError: (error) => {
-      toast.error(`Delete failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      setActiveConversation({
-        type: "",
-        data: null,
-      });
+      showToast("error", `❌ Delete failed: ${error?.response?.data?.message}`);
+
+      // Ensure UI resets even if deletion fails
+      setActiveConversation({ type: "", data: null });
       setThreedot(false);
     },
   });

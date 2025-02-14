@@ -1,39 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { joinGroupRequest } from "../ApiRequiests/userApi";
+import showToast from "@/services/ShowToast";
 
-const useJoinGroup = () => {
+const useJoinGroup = ({ handleClose }) => {
   const queryClient = useQueryClient(); // Get the query client instance
+
   const {
     mutate: joinGroup,
     isPending: joinGroupLoading,
     isSuccess: joinGroupSuccess,
   } = useMutation({
-    mutationFn: (payload) => joinGroupRequest(payload), // Call the function to create a new group
+    mutationFn: (payload) => joinGroupRequest(payload),
     onSuccess: () => {
-      toast.success("User joined successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("success", "🎉 User joined successfully!");
       queryClient.invalidateQueries(["groupsList"]);
+      //handleClose();
     },
     onError: (error) => {
-      toast.error(`Joined failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      showToast("error", `❌ Join failed: ${error?.response?.data?.message}`);
     },
   });
 
