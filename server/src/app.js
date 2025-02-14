@@ -139,7 +139,7 @@ io.on("connection", (socket) => {
   );
 
   socket.on("sendNotification", async ({ message = "" }) => {
-    console.log(` Notification: ${message}`);
+    //console.log(` Notification: ${message}`);
 
     io.emit("receiveNotification", {
       messages: ` Notification: ${message}`,
@@ -168,7 +168,7 @@ async function getAccessToken() {
 
   try {
     const accessToken = await auth.getAccessToken();
-    console.log("Access Token:", accessToken);
+    //console.log("Access Token:", accessToken);
     return accessToken;
   } catch (error) {
     console.error("Error fetching access token:", error);
@@ -244,19 +244,6 @@ app.post("/api/v1/send-notification", async (req, res) => {
 // Define a basic route
 app.get("/", (req, res) => {
   res.send("Server is running.");
-});
-
-// Define a basic route
-app.get("/testBG/:id", (req, res) => {
-  console.log("API is called by android app");
-
-  const routeParams = req.params;
-  console.log("Route Parameters:", routeParams);
-
-  res.status(200).json({
-    message: "API called successfully",
-    routeParams: routeParams,
-  });
 });
 
 app.use("/api/v1/auth", AuthRouter);
