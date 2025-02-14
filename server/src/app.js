@@ -153,9 +153,10 @@ io.on("connection", (socket) => {
 });
 
 const serviceAccount = JSON.parse(
-  fs.readFileSync(
-    new URL("./utils/AdminServiceAccountKey.json", import.meta.url)
-  )
+  Buffer.from(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64,
+    "base64"
+  ).toString("utf8")
 );
 
 // Function to get an access token using Google OAuth2
@@ -167,7 +168,7 @@ async function getAccessToken() {
 
   try {
     const accessToken = await auth.getAccessToken();
-    //console.log("Access Token:", accessToken);
+    console.log("Access Token:", accessToken);
     return accessToken;
   } catch (error) {
     console.error("Error fetching access token:", error);
