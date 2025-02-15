@@ -17,24 +17,26 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
-
-messaging?.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage((payload) => {
   console.log("Received background message: ", payload);
-
-  if (!self?.registration) {
-    console.error("Service worker registration not found!");
-    return;
-  }
 
   const { title, body } = payload?.notification || {
     title: "Default Title",
     body: "Default Body",
   };
 
-  self.registration.showNotification(title, {
+  const notificationOptions = {
     body,
     icon: "/logo.png",
     requireInteraction: true,
     actions: [{ action: "open_app", title: "Open App" }],
-  });
+    data: { url: "https://chating-room.vercel.app/" }, // Set your actual domain
+  };
+
+  self.registration.showNotification(title, notificationOptions);
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow(event.notification.data.url));
 });
