@@ -18,15 +18,15 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
+messaging?.onBackgroundMessage((payload) => {
   console.log("Received background message: ", payload);
 
-  if (!self.registration) {
+  if (!self?.registration) {
     console.error("Service worker registration not found!");
     return;
   }
 
-  const { title, body } = payload.notification || {
+  const { title, body } = payload?.notification || {
     title: "Default Title",
     body: "Default Body",
   };
