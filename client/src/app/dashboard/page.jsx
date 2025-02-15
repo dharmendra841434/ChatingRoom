@@ -5,7 +5,10 @@ import SelectedOptions from "@/components/SelectedOptions";
 import StartGroupChat from "@/components/StartGroupChat";
 import StartUserChat from "@/components/StartUserChat";
 import UserProfileCard from "@/components/UserProfile";
-import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
+import {
+  getUserProfile,
+  sendNotifications,
+} from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
@@ -38,7 +41,7 @@ const DashboardPage = () => {
   });
   const invalidateQuery = useInvalidateQuery();
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (input.trim()) {
       const data = {
@@ -55,6 +58,12 @@ const DashboardPage = () => {
         timestamp: new Date().toISOString(), // Use current timestamp
         read: [userDetails?.data?.user?._id],
       };
+
+      await sendNotifications({
+        title: `New Message from ${userDetails?.data?.user?.full_name}`,
+        body: input,
+        deviceTokens: activeConversation.data?.usersDeviceToken,
+      });
 
       // Add the new message object to the state
       setMessages((prevMessages) => [...prevMessages, newMessage]);

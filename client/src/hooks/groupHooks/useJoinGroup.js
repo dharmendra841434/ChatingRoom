@@ -14,7 +14,7 @@ const useJoinGroup = ({ handleClose }) => {
     onSuccess: () => {
       showToast("success", "🎉 User joined successfully!");
       queryClient.invalidateQueries(["groupsList"]);
-      //handleClose();
+      handleClose();
     },
     onError: (error) => {
       showToast("error", `❌ Join failed: ${error?.response?.data?.message}`);

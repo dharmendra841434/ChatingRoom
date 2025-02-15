@@ -3,7 +3,7 @@
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import { messaging } from "@/services/firebaseConfig";
 import { useSocket } from "@/services/SocketProvider";
-import { getToken, onMessage } from "firebase/messaging";
+import { onMessage } from "firebase/messaging";
 import React, { useEffect } from "react";
 
 const HighOrderComponent = ({ children }) => {
@@ -23,27 +23,13 @@ const HighOrderComponent = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // getToken(messaging, {
-    //   vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
-    // })
-    //   .then((currentToken) => {
-    //     if (currentToken) {
-    //       console.log("FCM Token:", currentToken);
-    //       //setToken(currentToken);
-    //     } else {
-    //       console.log("No registration token available.");
-    //     }
-    //   })
-    //   .catch((err) =>
-    //     console.log("An error occurred while retrieving token:", err)
-    //   );
-
     const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Message received.", payload);
-      setNotification({
-        title: payload.notification?.title || "No Title",
-        body: payload.notification?.body || "No Body",
-      });
+      console.log("Message BY HOC received:", payload);
+      // Extract title & body from notification
+      const title = payload?.notification?.title || "New Notification";
+      const body = payload?.notification?.body || "You have a new message";
+      // Show toast notification
+      showToast("info", `${title}: ${body}`);
     });
 
     return () => unsubscribe();

@@ -184,9 +184,9 @@ admin.initializeApp({
 
 app.post("/api/v1/send-notification", async (req, res) => {
   try {
-    const { fcmToken, title, body } = req.body;
+    const { deviceTokens, title, body } = req.body;
 
-    if (!fcmToken || !title || !body) {
+    if (deviceTokens?.length == 0 || !title || !body) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields: fcmToken, title, and body.",
@@ -206,26 +206,31 @@ app.post("/api/v1/send-notification", async (req, res) => {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    const data = {
-      message: {
-        token: fcmToken,
-        notification: {
-          title,
-          body,
-        },
-      },
-    };
+    for (let i = 0; i < deviceTokens.length; i++) {
+      const fcmToken = deviceTokens[i];
+      console.log(fcmToken, "this is device token ");
 
-    const response = await axios.post(
-      "https://fcm.googleapis.com/v1/projects/pingpong-8a4de/messages:send",
-      data,
-      { headers }
-    );
+      const data = {
+        message: {
+          token: fcmToken,
+          notification: {
+            title,
+            body,
+          },
+        },
+      };
+
+      await axios.post(
+        "https://fcm.googleapis.com/v1/projects/pingpong-8a4de/messages:send",
+        data,
+        { headers }
+      );
+    }
 
     return res.status(200).json({
       success: true,
       message: "Notification sent successfully.",
-      firebaseResponse: response.data,
+      // firebaseResponse: response.data,
     });
   } catch (error) {
     console.error(

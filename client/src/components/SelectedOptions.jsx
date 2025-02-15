@@ -36,7 +36,7 @@ const SelectedOptions = ({ show, handleClose }) => {
     });
 
     if (deviceToken) {
-      joinGroup({ groupKey: groupKey });
+      joinGroup({ groupKey: groupKey, deviceToken: deviceToken });
       setGroupKey("");
     } else {
       console.log("No registration token available.");
