@@ -15,8 +15,15 @@ import useCloudinaryUpload from "@/hooks/useCloudinary";
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import { sendNotificationToUsers } from "@/services/helper";
 import { useSocket } from "@/services/SocketProvider";
+import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
+import { HiOutlineUserGroup } from "react-icons/hi2";
 import { IoMdClose } from "react-icons/io";
+import {
+  MdGroups,
+  MdKeyboardDoubleArrowLeft,
+  MdKeyboardDoubleArrowRight,
+} from "react-icons/md";
 
 const DashboardPage = () => {
   const [messages, setMessages] = useState([]);
@@ -40,6 +47,8 @@ const DashboardPage = () => {
     setActiveConversation: setActiveConversation,
     setThreedot: setThreedot,
   });
+
+  const [isExpand, setIsExpand] = useState(true);
   const invalidateQuery = useInvalidateQuery();
 
   const handleSendMessage = async (e) => {
@@ -212,6 +221,10 @@ const DashboardPage = () => {
     });
   };
 
+  const handleExpand = () => {
+    setIsExpand(!isExpand);
+  };
+
   useEffect(() => {
     if (!activeConversation?.data || !userDetails?.data?.user?.username) return;
 
@@ -271,18 +284,65 @@ const DashboardPage = () => {
 
   return (
     <div className="flex h-screen max-w-[96rem] mx-auto ">
-      <DashboardTab
-        handleSelectOption={handleOptions}
-        handleStartConversation={setActiveConversation}
-        userDetails={userDetails?.data}
-        handleSelectChat={handleSelectChat}
-        handleChangeUserstabs={() =>
-          setActiveConversation({
-            type: "",
-            data: null,
-          })
-        }
-      />
+      {isExpand ? (
+        <DashboardTab
+          handleSelectOption={handleOptions}
+          handleStartConversation={setActiveConversation}
+          userDetails={userDetails?.data}
+          handleSelectChat={handleSelectChat}
+          handleChangeUserstabs={() =>
+            setActiveConversation({
+              type: "",
+              data: null,
+            })
+          }
+          handleExpand={handleExpand}
+        />
+      ) : (
+        <div className=" w-[6%] bg-gray-200 h-full relative">
+          <button
+            onClick={handleExpand}
+            className=" absolute -right-3 bg-purple-800 top-8 cursor-pointer"
+          >
+            <MdKeyboardDoubleArrowRight className=" text-3xl text-white" />
+          </button>
+          <div className=" h-full w-full flex flex-col items-center pt-5 ">
+            <Image
+              src="/logo.png"
+              className=" h-16 w-16 mr-5 "
+              width={180}
+              height={180}
+              alt="logo"
+            />
+            <div
+              onClick={handleExpand}
+              className=" bg-white rounded-lg p-2 mt-12 cursor-pointer"
+            >
+              <MdGroups className=" text-5xl" />
+            </div>
+            <div
+              onClick={handleExpand}
+              className=" bg-white rounded-lg p-2 mt-12 cursor-pointer"
+            >
+              <div className={`border border-gray-800 rounded-full p-1`}>
+                <div className={`border border-gray-800 rounded-full p-1`}>
+                  <HiOutlineUserGroup className=" text-3xl" />
+                </div>
+              </div>
+            </div>
+            <div
+              onClick={handleExpand}
+              className=" bg-white rounded-lg p-2 mt-12 absolute bottom-5 cursor-pointer "
+            >
+              <img
+                src={userDetails?.data?.user?.profile_pic}
+                alt="dp"
+                className=" h-12 w-12 rounded-full "
+              />
+            </div>
+          </div>
+        </div>
+      )}
       <CustomModal isOpen={isOpenModal} onClose={setIsOpenModal}>
         <div className=" p-6">
           <SelectedOptions show={showOptions} handleClose={onClose} />
@@ -336,7 +396,7 @@ const DashboardPage = () => {
           currentUser={userDetails?.data}
         />
       </CustomModal>
-      <div className=" w-3/4 ">
+      <div className={`${isExpand ? "w-3/4" : " w-[94%]"}`}>
         {activeConversation?.data ? (
           <div className="w-full flex flex-col h-full  ">
             {/* Chat Section */}

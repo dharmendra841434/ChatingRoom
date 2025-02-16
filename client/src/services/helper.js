@@ -1,5 +1,6 @@
 import { sendNotifications } from "@/hooks/ApiRequiests/userApi";
 import { messaging } from "./firebaseConfig";
+import { getToken } from "firebase/messaging";
 
 export function generateRandomString(length) {
   const characters =
@@ -81,9 +82,18 @@ export const sendNotificationToUsers = async (
       vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
 
-    usersDeviceTokens = GroupDeviceTokens.filter(
+    const usersDeviceTokens = GroupDeviceTokens.filter(
       (token) => token !== currentDeviceToken
     );
+
+    // console.log(currentDeviceToken, "ct");
+
+    // console.log({
+    //   title: `New Message from ${userDetails?.data?.user?.full_name}`,
+    //   body: input,
+    //   deviceTokens: usersDeviceTokens,
+    // });
+
     await sendNotifications({
       title: `New Message from ${userDetails?.data?.user?.full_name}`,
       body: input,

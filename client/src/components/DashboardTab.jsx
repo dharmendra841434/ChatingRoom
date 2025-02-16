@@ -13,6 +13,7 @@ import ProfileLoader from "./loaders/ProfileLoader";
 import UsersTabs from "./UsersTabs";
 import ProfileIcon from "./ProfileIcon";
 import { countUnreadMessages, hasUserReadLastMessage } from "@/services/helper";
+import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 
 const DashboardTab = ({
   handleStartConversation,
@@ -20,6 +21,8 @@ const DashboardTab = ({
   userDetails,
   handleSelectChat,
   handleChangeUserstabs,
+  isExpand,
+  handleExpand,
 }) => {
   const [activeTab, setActiveTab] = useState("groups");
   const { groupsList, isLoading } = useGetUserGroupsList();
@@ -33,7 +36,13 @@ const DashboardTab = ({
   //console.log(groupsList, "groupsList");
 
   return (
-    <div className="w-full max-w-md mx-auto  border-r border-r-gray-200 bg-white">
+    <div className="w-full max-w-md mx-auto  border-r border-r-gray-200 bg-gray-200 relative">
+      <button
+        onClick={handleExpand}
+        className=" absolute -right-3 bg-purple-800 top-8 cursor-pointer"
+      >
+        <MdKeyboardDoubleArrowLeft className=" text-3xl text-white" />
+      </button>
       <div className="flex  ">
         <div
           className={`w-1/2 ${
