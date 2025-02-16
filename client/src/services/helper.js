@@ -1,6 +1,13 @@
 import { sendNotifications } from "@/hooks/ApiRequiests/userApi";
-import { messaging } from "./firebaseConfig";
+import { messaging, messagingPromise } from "./firebaseConfig";
 import { getToken } from "firebase/messaging";
+
+export async function getFCM() {
+  const messaging = await messagingPromise;
+  if (!messaging) return console.warn("No messaging instance available.");
+  console.log("Messaging is ready:", messaging);
+  return messaging;
+}
 
 export function generateRandomString(length) {
   const characters =
@@ -78,6 +85,7 @@ export const sendNotificationToUsers = async (
 ) => {
   try {
     // Get the current device token
+    const messaging = await getFCM();
     const currentDeviceToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
@@ -86,7 +94,7 @@ export const sendNotificationToUsers = async (
       (token) => token !== currentDeviceToken
     );
 
-    // console.log(currentDeviceToken, "ct");
+    console.log(usersDeviceTokens, "ct");
 
     // console.log({
     //   title: `New Message from ${userDetails?.data?.user?.full_name}`,

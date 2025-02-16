@@ -1,7 +1,8 @@
 "use client";
 
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
-import { messaging } from "@/services/firebaseConfig";
+import { messagingPromise } from "@/services/firebaseConfig";
+import { getFCM } from "@/services/helper";
 import { useSocket } from "@/services/SocketProvider";
 import { onMessage } from "firebase/messaging";
 import React, { useEffect } from "react";
@@ -29,16 +30,30 @@ const HighOrderComponent = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Message BY HOC received:", payload);
-      // Extract title & body from notification
-      const title = payload?.notification?.title || "New Notification";
-      const body = payload?.notification?.body || "You have a new message";
-      // Show toast notification
-      showToast("info", `${title}: ${body}`);
-    });
+    let unsubscribe;
 
-    return () => unsubscribe();
+    async function setupMessaging() {
+      const messaging = await getFCM();
+
+      unsubscribe = onMessage(messaging, (payload) => {
+        console.log("Message received:", payload);
+
+        // Extract title & body from notification
+        const title = payload?.notification?.title || "New Notification";
+        const body = payload?.notification?.body || "You have a new message";
+
+        // Show toast notification
+        showToast("info", `${title}: ${body}`);
+      });
+    }
+
+    setupMessaging();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   useEffect(() => {

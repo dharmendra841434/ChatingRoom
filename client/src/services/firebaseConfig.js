@@ -16,18 +16,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize messaging only if supported
-let messaging;
-isSupported()
+const messagingPromise = isSupported()
   .then((supported) => {
     if (supported) {
-      messaging = getMessaging(app);
-      console.log("Firebase Messaging initialized.");
+      console.log("Firebase Messaging is supported.");
+      return getMessaging(app);
     } else {
       console.warn("Firebase Messaging is not supported in this browser.");
+      return null;
     }
   })
-  .catch((err) =>
-    console.error("Error checking Firebase Messaging support:", err)
-  );
+  .catch((err) => {
+    console.error("Error checking Firebase Messaging support:", err);
+    return null;
+  });
 
-export { app, messaging };
+export { app, messagingPromise };

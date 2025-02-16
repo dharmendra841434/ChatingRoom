@@ -5,10 +5,7 @@ import SelectedOptions from "@/components/SelectedOptions";
 import StartGroupChat from "@/components/StartGroupChat";
 import StartUserChat from "@/components/StartUserChat";
 import UserProfileCard from "@/components/UserProfile";
-import {
-  getUserProfile,
-  sendNotifications,
-} from "@/hooks/ApiRequiests/userApi";
+import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
@@ -19,11 +16,7 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { HiOutlineUserGroup } from "react-icons/hi2";
 import { IoMdClose } from "react-icons/io";
-import {
-  MdGroups,
-  MdKeyboardDoubleArrowLeft,
-  MdKeyboardDoubleArrowRight,
-} from "react-icons/md";
+import { MdGroups, MdKeyboardDoubleArrowRight } from "react-icons/md";
 
 const DashboardPage = () => {
   const [messages, setMessages] = useState([]);

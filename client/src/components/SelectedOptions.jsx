@@ -3,8 +3,9 @@ import { IoMdClose } from "react-icons/io";
 import UserSearch from "./UserSearch";
 import useJoinGroup from "@/hooks/groupHooks/useJoinGroup";
 import useCreateGroup from "@/hooks/groupHooks/useCreateGroup";
-import { messaging } from "@/services/firebaseConfig";
 import { getToken } from "firebase/messaging";
+import { messagingPromise } from "@/services/firebaseConfig";
+import { getFCM } from "@/services/helper";
 
 const SelectedOptions = ({ show, handleClose }) => {
   const [groupName, setGroupName] = useState("");
@@ -16,6 +17,7 @@ const SelectedOptions = ({ show, handleClose }) => {
 
   const handleCreateGroup = async (e) => {
     e.preventDefault();
+    const messaging = await getFCM();
     const deviceToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
@@ -31,6 +33,7 @@ const SelectedOptions = ({ show, handleClose }) => {
 
   const handleJoinGroup = async (e) => {
     e.preventDefault();
+    const messaging = await getFCM();
     const deviceToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
