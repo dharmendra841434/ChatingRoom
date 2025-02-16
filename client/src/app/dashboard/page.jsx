@@ -13,6 +13,7 @@ import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
+import { sendNotificationToUsers } from "@/services/helper";
 import { useSocket } from "@/services/SocketProvider";
 import React, { useEffect, useRef, useState } from "react";
 import { IoMdClose } from "react-icons/io";
@@ -59,17 +60,16 @@ const DashboardPage = () => {
         read: [userDetails?.data?.user?._id],
       };
 
-      await sendNotifications({
-        title: `New Message from ${userDetails?.data?.user?.full_name}`,
-        body: input,
-        deviceTokens: activeConversation.data?.usersDeviceToken,
-      });
-
       // Add the new message object to the state
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("chatMessage", data);
       socket.emit("sendNotification", { message: "sending message" });
       setInput("");
+      await sendNotificationToUsers(
+        userDetails,
+        input,
+        activeConversation.data?.usersDeviceToken
+      );
     }
   };
 
@@ -107,7 +107,7 @@ const DashboardPage = () => {
     setShowOptions("create-group");
   };
 
-  const handleFileSelect = (event) => {
+  const handleFileSelect = async (event) => {
     setIsOpenMediaPopup(true);
     const file = event.target.files[0];
     if (file) {
@@ -136,7 +136,7 @@ const DashboardPage = () => {
 
     // Add the new message object to the state
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-    await uploadFile(selectedFile).then((result) => {
+    await uploadFile(selectedFile).then(async (result) => {
       const data = {
         groupKey: activeConversation.data?.groupKey,
         username: userDetails?.data?.user?.username,
@@ -149,6 +149,11 @@ const DashboardPage = () => {
       //console.log(data, "result");
       socket.emit("chatMessage", data);
       socket.emit("sendNotification", { message: "sending file" });
+      await sendNotificationToUsers(
+        userDetails,
+        "Sent Media File",
+        activeConversation.data?.usersDeviceToken
+      );
     });
   };
 

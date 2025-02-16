@@ -1,3 +1,6 @@
+import { sendNotifications } from "@/hooks/ApiRequiests/userApi";
+import { messaging } from "./firebaseConfig";
+
 export function generateRandomString(length) {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -66,3 +69,27 @@ export function countUnreadMessages(messages, userId) {
 
   return messages.filter((message) => !message.read.includes(userId)).length;
 }
+
+export const sendNotificationToUsers = async (
+  userDetails,
+  input,
+  GroupDeviceTokens
+) => {
+  try {
+    // Get the current device token
+    const currentDeviceToken = await getToken(messaging, {
+      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
+    });
+
+    usersDeviceTokens = GroupDeviceTokens.filter(
+      (token) => token !== currentDeviceToken
+    );
+    await sendNotifications({
+      title: `New Message from ${userDetails?.data?.user?.full_name}`,
+      body: input,
+      deviceTokens: usersDeviceTokens,
+    });
+  } catch (error) {
+    console.error("Error sending notification:", error);
+  }
+};
