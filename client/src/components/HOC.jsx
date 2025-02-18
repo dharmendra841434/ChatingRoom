@@ -3,6 +3,7 @@
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import { messagingPromise } from "@/services/firebaseConfig";
 import { getFCM } from "@/services/helper";
+import showToast from "@/services/ShowToast";
 import { useSocket } from "@/services/SocketProvider";
 import { onMessage } from "firebase/messaging";
 import React, { useEffect } from "react";
@@ -36,15 +37,15 @@ const HighOrderComponent = ({ children }) => {
       const messaging = await getFCM();
 
       unsubscribe = onMessage(messaging, (payload) => {
-        console.log("Message received:", payload);
+        console.log("Message test received:", payload);
 
         // Extract title & body from notification
         const title = payload?.notification?.title || "New Notification";
         const body = payload?.notification?.body || "You have a new message";
-        // console.log(title, body);
+        console.log(title, body, "jguffygf");
 
         // Show toast notification
-        // showToast("info", `${title}: ${body}`);
+        showToast("info", `${title}: ${body}`);
       });
     }
 
