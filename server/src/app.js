@@ -186,12 +186,12 @@ app.post("/api/v1/send-notification", async (req, res) => {
   try {
     const { deviceTokens, title, body } = req.body;
 
-    if (deviceTokens?.length == 0 || !title || !body) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields: fcmToken, title, and body.",
-      });
-    }
+    // if (deviceTokens?.length == 0 || !title || !body) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Missing required fields: fcmToken, title, and body.",
+    //   });
+    // }
 
     const accessToken = await getAccessToken();
     if (!accessToken) {
@@ -206,8 +206,11 @@ app.post("/api/v1/send-notification", async (req, res) => {
       Authorization: `Bearer ${accessToken}`,
     };
 
+    console.log(deviceTokens, "tck");
+
     for (let i = 0; i < deviceTokens.length; i++) {
       const fcmToken = deviceTokens[i];
+
       console.log(fcmToken, "this is device token ");
 
       const data = {

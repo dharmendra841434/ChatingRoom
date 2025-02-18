@@ -94,13 +94,13 @@ export const sendNotificationToUsers = async (
       (token) => token !== currentDeviceToken
     );
 
-    console.log(usersDeviceTokens, "ct");
+    //console.log(usersDeviceTokens, "ct");
 
-    // console.log({
-    //   title: `New Message from ${userDetails?.data?.user?.full_name}`,
-    //   body: input,
-    //   deviceTokens: usersDeviceTokens,
-    // });
+    console.log({
+      title: `New Message from ${userDetails?.data?.user?.full_name}`,
+      body: input,
+      deviceTokens: usersDeviceTokens,
+    });
 
     await sendNotifications({
       title: `New Message from ${userDetails?.data?.user?.full_name}`,

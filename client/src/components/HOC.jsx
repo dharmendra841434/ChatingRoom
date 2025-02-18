@@ -41,9 +41,10 @@ const HighOrderComponent = ({ children }) => {
         // Extract title & body from notification
         const title = payload?.notification?.title || "New Notification";
         const body = payload?.notification?.body || "You have a new message";
+        // console.log(title, body);
 
         // Show toast notification
-        showToast("info", `${title}: ${body}`);
+        // showToast("info", `${title}: ${body}`);
       });
     }
 

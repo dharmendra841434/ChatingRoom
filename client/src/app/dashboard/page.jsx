@@ -62,6 +62,8 @@ const DashboardPage = () => {
         read: [userDetails?.data?.user?._id],
       };
 
+      // console.log(activeConversation?.data?.usersDeviceToken, "this is active");
+
       // Add the new message object to the state
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("chatMessage", data);
@@ -70,7 +72,7 @@ const DashboardPage = () => {
       await sendNotificationToUsers(
         userDetails,
         input,
-        activeConversation.data?.usersDeviceToken
+        activeConversation?.data?.usersDeviceToken
       );
     }
   };
