@@ -5,9 +5,11 @@ import SelectedOptions from "@/components/SelectedOptions";
 import StartGroupChat from "@/components/StartGroupChat";
 import StartUserChat from "@/components/StartUserChat";
 import UserProfileCard from "@/components/UserProfile";
-import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
+import { getUserProfile, markAllReadMsg } from "@/hooks/ApiRequiests/userApi";
 import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
+import useMarkAsReadChatMessage from "@/hooks/authenticationHooks/useMarkAsReadChatMessage";
 import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
+import useUpdateReadMessages from "@/hooks/groupHooks/useUpdateReadMessages";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import { sendNotificationToUsers } from "@/services/helper";
@@ -40,7 +42,8 @@ const DashboardPage = () => {
     setActiveConversation: setActiveConversation,
     setThreedot: setThreedot,
   });
-
+  const { updateReadsMessage } = useUpdateReadMessages();
+  const { updateChatReadsMessage } = useMarkAsReadChatMessage();
   const [isExpand, setIsExpand] = useState(true);
   const invalidateQuery = useInvalidateQuery();
 
@@ -77,13 +80,14 @@ const DashboardPage = () => {
     }
   };
 
-  const handleSendUserMessage = (e) => {
+  const handleSendUserMessage = async (e) => {
     e.preventDefault();
     if (input.trim()) {
       const data = {
         message: input,
         chatKey: activeConversation.data?.chatKey,
         username: userDetails?.data?.user?.username,
+        userId: userDetails?.data?.user?._id,
       };
 
       const newMessage = {
@@ -91,14 +95,20 @@ const DashboardPage = () => {
         message: input,
         mediaFile: null,
         timestamp: new Date().toISOString(), // Use current timestamp
+        read: [userDetails?.data?.user?._id],
       };
 
       // Add the new message object to the state
       setUserChatMessages((prevMessages) => [...prevMessages, newMessage]);
       socket.emit("sendUserMessage", data);
-
       //console.log("query runnnn");
       setInput("");
+      socket.emit("sendNotification", { message: "sending message" });
+      // await sendNotificationToUsers(
+      //   userDetails,
+      //   input,
+      //   activeConversation?.data?.usersDeviceToken
+      // );
     }
   };
   const handleOptions = (option) => {
@@ -125,7 +135,7 @@ const DashboardPage = () => {
     }
   };
 
-  const handleUpload = async () => {
+  const handleSendMedia = async () => {
     setIsOpenMediaPopup(false);
     const newMessage = {
       username: userDetails?.data?.user?.username,
@@ -161,7 +171,7 @@ const DashboardPage = () => {
     });
   };
 
-  const handleUserChatUpload = async () => {
+  const handleSendMediaToUser = async () => {
     setIsOpenMediaPopup(false);
     const newMessage = {
       username: userDetails?.data?.user?.username,
@@ -186,8 +196,10 @@ const DashboardPage = () => {
           mediaType: "image",
           url: result,
         },
+        userId: userDetails?.data?.user?._id,
       };
       socket.emit("sendUserMessage", data);
+      socket.emit("sendNotification", { message: "sending file" });
     });
   };
 
@@ -239,20 +251,34 @@ const DashboardPage = () => {
       const data = {
         chatKey: activeConversation.data.chatKey,
         username: userDetails.data.user.username,
+        userId: userDetails.data.user._id,
       };
       socket.emit("joinChat", data);
+      socket.emit("sendNotification", { message: "sending message" });
     }
 
     const handleReciveUserMessages = ({ messages }) => {
       setUserChatMessages(messages);
-      invalidateQuery("peoplesChats");
+      //invalidateQuery("peoplesChats");
       setInput("");
+      if (activeConversation?.data !== null) {
+        updateChatReadsMessage({
+          chatKey: activeConversation.data.chatKey,
+          userId: userDetails.data.user._id,
+        });
+      }
     };
     const handleReciveGroupMessages = ({ messages }) => {
       //console.log(messages, "recived group messages");
       setMessages(messages);
-      invalidateQuery("groupsList");
+      //invalidateQuery("groupsList");
       setInput("");
+      if (activeConversation?.data !== null) {
+        updateReadsMessage({
+          groupId: activeConversation.data.groupKey,
+          userId: userDetails.data.user._id,
+        });
+      }
     };
 
     socket.on("joinedGroup", ({ message, messages }) => {
@@ -294,7 +320,7 @@ const DashboardPage = () => {
           handleExpand={handleExpand}
         />
       ) : (
-        <div className=" w-[6%] bg-gray-200 h-full relative">
+        <div className=" w-[9%] xl:w-[6%] bg-gray-200 h-full relative">
           <button
             onClick={handleExpand}
             className=" absolute -right-3 bg-purple-800 top-8 cursor-pointer"
@@ -344,7 +370,7 @@ const DashboardPage = () => {
         </div>
       </CustomModal>
       <CustomModal isOpen={isOpenMediaPopup} onClose={setIsOpenMediaPopup}>
-        <div className=" flex flex-col items-center p-6 bg-white">
+        <div className=" flex flex-col items-center w-[35rem] h-[35rem] bg-white p-3">
           {selectedFile && (
             <div className=" flex flex-col items-center mb-4 p-2 bg-white rounded-lg shadow-sm">
               <p className="text-sm text-gray-700">
@@ -354,7 +380,7 @@ const DashboardPage = () => {
                 <img
                   src={URL.createObjectURL(selectedFile)}
                   alt="Selected Media"
-                  className="mt-2 w-36 h-36 rounded-lg"
+                  className="mt-2 h-[25rem] w-[25rem] rounded-lg"
                 />
               )}
             </div>
@@ -362,9 +388,9 @@ const DashboardPage = () => {
           <button
             onClick={() => {
               if (activeConversation?.type === "group") {
-                handleUpload();
+                handleSendMedia();
               } else {
-                handleUserChatUpload();
+                handleSendMediaToUser();
               }
             }}
             className=" mt-5 bg-foreground rounded-lg px-5 py-2 text-white hover:bg-purple-900"
@@ -379,7 +405,6 @@ const DashboardPage = () => {
           </button>
         </div>
       </CustomModal>
-
       <CustomModal
         isOpen={viewUserProfile !== null}
         onClose={() => {
@@ -391,7 +416,9 @@ const DashboardPage = () => {
           currentUser={userDetails?.data}
         />
       </CustomModal>
-      <div className={`${isExpand ? "w-3/4" : " w-[94%]"}`}>
+      <div
+        className={`${isExpand ? "w-[63%] xl:w-[75%]" : " w-[91%] xl:w-[94%]"}`}
+      >
         {activeConversation?.data ? (
           <div className="w-full flex flex-col h-full  ">
             {/* Chat Section */}

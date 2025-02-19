@@ -196,34 +196,6 @@ const getDetails = async (req, res) => {
   }
 };
 
-const getChatDataByUserId = async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    // Validate userId
-    if (!userId) {
-      return res.status(400).json({ error: "userId is required" });
-    }
-
-    // Find chats where userId is part of the chatKey
-    const chats = await UserChat.find({
-      chatKey: { $regex: userId }, // Checks if userId is included in chatKey
-    });
-
-    // Respond with the retrieved chats
-    if (chats.length > 0) {
-      return res.status(200).json(chats);
-    } else {
-      return res
-        .status(200)
-        .json({ message: "No chats found for the given userId" });
-    }
-  } catch (error) {
-    console.error("Error fetching chat data:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
 const searchPeople = async (req, res, next) => {
   try {
     const { query, limit = 10 } = req.query;
@@ -503,5 +475,4 @@ export {
   acceptFriendRequest,
   cancelRecievedRequest,
   cancelSendedRequest,
-  getChatDataByUserId,
 };

@@ -111,3 +111,33 @@ export const sendNotificationToUsers = async (
     console.error("Error sending notification:", error);
   }
 };
+
+export const isMessageReadUserChat = (userId, peoplesChatLists, friendId) => {
+  const chat = peoplesChatLists?.find((item) =>
+    item?.chatKey?.split("_").includes(friendId)
+  );
+
+  if (!chat || !chat.messages || chat.messages.length === 0) {
+    return false; // No messages, nothing to check
+  }
+
+  const lastMessage = chat.messages[chat.messages.length - 1];
+  return lastMessage.read?.includes(userId) || false;
+};
+
+export const countUserChatUnreadMessages = (
+  userId,
+  peoplesChatLists,
+  friendId
+) => {
+  const chat = peoplesChatLists?.find((item) =>
+    item?.chatKey?.split("_").includes(friendId)
+  );
+
+  if (!chat || !chat.messages || chat.messages.length === 0) {
+    return 0; // No messages, no unread messages
+  }
+
+  return chat.messages.filter((message) => !message.read?.includes(userId))
+    .length;
+};

@@ -175,15 +175,16 @@ const markAllMessagesAsRead = async (req, res) => {
   try {
     const { groupId, userId } = req.body;
 
+    // console.log(req?.body, "asrfgsaug");
+
     if (!groupId || !userId) {
       return res.status(400).json({ error: "groupId and userId are required" });
     }
 
-    // Update the group to mark all messages as read by adding userId to the read array for each message
     const group = await Group.findOneAndUpdate(
-      { _id: groupId },
-      { $addToSet: { "messages.read": userId } }, // Add userId to the "read" array for all messages
-      { new: true }
+      { groupKey: groupId },
+      { $addToSet: { "messages.$[].read": userId.toString() } },
+      { new: true } // Returns the updated document
     );
 
     if (!group) {

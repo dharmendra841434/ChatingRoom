@@ -36,7 +36,7 @@ const DashboardTab = ({
   //console.log(groupsList, "groupsList");
 
   return (
-    <div className="w-full max-w-md mx-auto  border-r border-r-gray-200 bg-gray-200 relative">
+    <div className="w-[37%] xl:w-[25%] max-w-md mx-auto  border-r border-r-gray-200 bg-gray-200 relative">
       <button
         onClick={handleExpand}
         className=" absolute -right-3 bg-purple-800 top-8 cursor-pointer"
@@ -143,7 +143,7 @@ const DashboardTab = ({
                 onClick={() => {
                   handleSelectOption("create-group");
                 }}
-                className=" flex flex-row items-center justify-center space-x-3 border border-foreground rounded-lg px-8 py-1"
+                className=" flex flex-row items-center justify-center space-x-3 border border-foreground rounded-lg px-5 py-1"
               >
                 <FiEdit className=" text-2xl" />
                 <p>Create Group</p>
@@ -152,7 +152,7 @@ const DashboardTab = ({
                 onClick={() => {
                   handleSelectOption("join-group");
                 }}
-                className="flex flex-row items-center justify-center space-x-3 border border-foreground rounded-lg px-8 py-1"
+                className="flex flex-row items-center justify-center space-x-3 border border-foreground rounded-lg px-5 py-1"
               >
                 <IoMdAddCircleOutline className=" text-2xl" />
                 <p>Join Group</p>
@@ -190,7 +190,7 @@ const DashboardTab = ({
                                     : " bg-green-100"
                                 }`
                               : "bg-white"
-                          }  drop-shadow-sm rounded-xl p-3 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200`}
+                          }  drop-shadow-sm rounded-xl px-3 py-2 mb-3 cursor-pointer transition-all duration-300 ease-in-out hover:bg-purple-100 border border-gray-200`}
                         >
                           {countUnreadMessages(
                             group?.messages,
@@ -216,12 +216,12 @@ const DashboardTab = ({
                             />
 
                             <div>
-                              <h2 className=" font-semibold text-gray-800 capitalize ">
+                              <h2 className="  font-medium text-gray-800 capitalize ">
                                 {group.groupName}
                               </h2>
                               {group?.messages?.length > 0 && (
                                 <div
-                                  className={`text-xs my-2 ${
+                                  className={`text-xs mb-1.5 ${
                                     hasUserReadLastMessage(
                                       group,
                                       userDetails?.user

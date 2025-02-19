@@ -3,6 +3,7 @@ import "./globals.css";
 import { SocketProvider } from "@/services/SocketProvider";
 import React from "react";
 import HighOrderComponent from "@/components/HOC";
+import DownloadAppBanner from "@/components/DownloadAppBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +26,14 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SocketProvider>
-          <HighOrderComponent>{children}</HighOrderComponent>
-        </SocketProvider>
+        <div className=" hidden lg:block">
+          <SocketProvider>
+            <HighOrderComponent>{children}</HighOrderComponent>
+          </SocketProvider>
+        </div>
+        <div className=" lg:hidden flex items-center justify-center h-screen">
+          <DownloadAppBanner />
+        </div>
         <div id="modal"></div>
       </body>
     </html>

@@ -96,13 +96,31 @@ export const cancelRecivedFriendRequest = async (payload) => {
 };
 
 // Function to fetch all users data
-export const getPeoplesChats = async (query) => {
-  const response = await axiosInstance.get(`/auth/friends-chat`);
+export const getPeoplesChats = async () => {
+  const response = await axiosInstance.get(`/chat/friends-chat`);
   return response.data || response; // Assuming the response contains the data
 };
 
 // Function to fetch all users data
 export const sendNotifications = async (payload) => {
   const response = await axiosInstance.post(`/send-notification`, payload);
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch all users data
+export const markAllReadMsg = async (payload) => {
+  // console.log(payload, "khjgg");
+
+  const response = await axiosInstance.put(
+    `/group/mark-all-messages-read`,
+    payload
+  );
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch all users data
+export const markasAllReadChatMsg = async (payload) => {
+  // console.log(payload, "khjgg");
+  const response = await axiosInstance.put(`/chat/mark-as-read`, payload);
   return response.data || response; // Assuming the response contains the data
 };

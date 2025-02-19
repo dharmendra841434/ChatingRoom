@@ -8,7 +8,7 @@ const useCreateGroup = () => {
   const {
     mutate: createGroup,
     isPending: createGroupLoading,
-    isSuccess: createGroupSuccess,
+    isSuccess: isCreateGroupSuccess,
   } = useMutation({
     mutationFn: (payload) => createGroupRequest(payload),
     onSuccess: () => {
@@ -26,7 +26,7 @@ const useCreateGroup = () => {
   return {
     createGroup,
     createGroupLoading,
-    createGroupSuccess,
+    isCreateGroupSuccess,
   };
 };
 

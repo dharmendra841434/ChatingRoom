@@ -85,11 +85,26 @@ io.on("connection", (socket) => {
   });
 
   // Join a chat room
-  socket.on("joinChat", async ({ chatKey, username }) => {
+  socket.on("joinChat", async ({ chatKey, username, userId }) => {
     console.log(`User ${username} joined room ${chatKey}`);
     socket.join(chatKey);
     // Emit a message to the user that they have joined the room
     const chat = await UserChat.findOne({ chatKey });
+
+    // Update all messages to mark them as read by this user
+    const updatedMessages = chat.messages.map((msg) => {
+      if (!msg.read.includes(userId)) {
+        msg.read.push(userId);
+      }
+      return msg;
+    });
+
+    // Save the updated group messages
+    await UserChat.updateOne(
+      { chatKey },
+      { $set: { messages: updatedMessages } }
+    );
+
     socket.emit("joinedChat", {
       message: `Welcome to the group ${chatKey}! `,
       messages: chat?.messages,
@@ -124,11 +139,16 @@ io.on("connection", (socket) => {
   // Handle chat messages
   socket.on(
     "sendUserMessage",
-    async ({ chatKey, message = "", username, mediaFile = null }) => {
+    async ({ chatKey, message = "", username, mediaFile = null, userId }) => {
       console.log(`Message from ${username} in room ${chatKey}: ${message}`);
       const userchat = await UserChat.findOne({ chatKey });
       if (userchat) {
-        userchat.messages.push({ username, message, mediaFile });
+        userchat.messages.push({
+          username,
+          message,
+          mediaFile,
+          read: [userId],
+        });
         await userchat.save();
       }
 
@@ -206,12 +226,12 @@ app.post("/api/v1/send-notification", async (req, res) => {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    console.log(deviceTokens, "tck");
+    //console.log(deviceTokens, "tck");
 
     for (let i = 0; i < deviceTokens.length; i++) {
       const fcmToken = deviceTokens[i];
 
-      console.log(fcmToken, "this is device token ");
+      // console.log(fcmToken, "this is device token ");
 
       const data = {
         message: {

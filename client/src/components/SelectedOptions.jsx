@@ -10,7 +10,7 @@ import { getFCM } from "@/services/helper";
 const SelectedOptions = ({ show, handleClose }) => {
   const [groupName, setGroupName] = useState("");
   const [groupKey, setGroupKey] = useState("");
-  const { createGroup } = useCreateGroup();
+  const { createGroup, isCreateGroupSuccess } = useCreateGroup();
   const { joinGroup } = useJoinGroup({
     handleClose: handleClose,
   });
@@ -40,7 +40,9 @@ const SelectedOptions = ({ show, handleClose }) => {
 
     if (deviceToken) {
       joinGroup({ groupKey: groupKey, deviceToken: deviceToken });
-      setGroupKey("");
+      if (isCreateGroupSuccess) {
+        setGroupKey("");
+      }
     } else {
       console.log("No registration token available.");
     }

@@ -33,7 +33,7 @@ const useCloudinaryUpload = () => {
       );
 
       setUrl(res.data.url);
-      showToast("success", "✅ Image uploaded successfully!");
+      // showToast("success", "✅ Image uploaded successfully!");
       return res.data.secure_url;
     } catch (err) {
       console.error("Error uploading image:", err);

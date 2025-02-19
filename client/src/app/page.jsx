@@ -33,14 +33,14 @@ const Home = () => {
   // };
 
   return (
-    <div className=" min-h-screen max-w-[96rem] mx-auto bg-darkGreen px-5">
+    <div className=" min-h-screen max-w-[96rem] mx-auto bg-foreground px-5">
       <div className=" py-2">
         <img src="ChatingApp.webp" alt="logo" className=" w-44" />
       </div>
-      <div className="  flex items-center justify-center">
+      <div className="  flex items-center justify-center mt-12">
         <div className="w-full max-w-md bg-white rounded-lg shadow-md">
           {/* Tab Content */}
-          <div className="p-6">
+          <div className="p-6 ">
             {activeTab === "register" ? (
               <RegisterPage setActiveTab={setActiveTab} />
             ) : (

@@ -7,11 +7,14 @@ import React, { useEffect, useState } from "react";
 import IphoneLoader from "./loaders/IphoneLoader";
 import useGetAllPeoplesChat from "@/hooks/authenticationHooks/useGetAllPeoplesChat";
 import { useSocket } from "@/services/SocketProvider";
+import {
+  countUserChatUnreadMessages,
+  isMessageRead,
+  isMessageReadUserChat,
+} from "@/services/helper";
 
 const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
   const [activeTab, setActiveTab] = useState("connected");
-  const [loading, setLoading] = useState(false);
-  // console.log(userDetails, "details");
   const queryClient = useQueryClient();
   const [acceptLoader, setAcceptLoader] = useState(false);
   const [cancelLoader, setCancelLoader] = useState(false);
@@ -96,7 +99,15 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                   onClick={() => {
                     handleSelectChat(friend);
                   }}
-                  className=" flex flex-row  space-x-2 py-2 bg-white rounded-lg drop-shadow-sm p-2 cursor-pointer my-2"
+                  className={`flex flex-row  space-x-2 py-2 ${
+                    isMessageReadUserChat(
+                      userDetails?.user?._id,
+                      peoplesChatLists,
+                      friend?._id
+                    )
+                      ? "bg-white"
+                      : "bg-green-100"
+                  } rounded-lg drop-shadow-sm p-2 cursor-pointer my-2`}
                 >
                   <img
                     src={friend?.profile_pic}
@@ -106,11 +117,23 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                     <h1 className=" font-medium text-gray-900 ">
                       {friend?.full_name}
                     </h1>
-                    <p className=" text-xs text-gray-600">
+                    <p
+                      className={`text-xs  ${
+                        isMessageReadUserChat(
+                          userDetails?.user?._id,
+                          peoplesChatLists,
+                          friend?._id
+                        )
+                          ? "text-gray-600"
+                          : "text-gray-800 font-bold"
+                      }`}
+                    >
                       {(() => {
                         const chat = peoplesChatLists?.find((item) =>
                           item?.chatKey?.split("_").includes(friend?._id)
                         );
+                        console.log(chat, "sjdfusd");
+
                         const lastMessage =
                           chat?.messages?.[chat.messages.length - 1];
 
@@ -125,10 +148,23 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                           return `${lastMessage.username}: Photo`;
                         }
 
-                        return `${lastMessage.username}: ${lastMessage.message}`;
+                        return ` ${lastMessage.message}`;
                       })()}
                     </p>
                   </div>
+                  {countUserChatUnreadMessages(
+                    userDetails?.user?._id,
+                    peoplesChatLists,
+                    friend?._id
+                  ) > 0 && (
+                    <p className=" absolute right-3 bg-red-500 text-xs h-5 flex items-center justify-center w-5 rounded-full text-white">
+                      {countUserChatUnreadMessages(
+                        userDetails?.user?._id,
+                        peoplesChatLists,
+                        friend?._id
+                      )}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

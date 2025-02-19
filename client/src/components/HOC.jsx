@@ -61,6 +61,7 @@ const HighOrderComponent = ({ children }) => {
   useEffect(() => {
     socket.on("receiveNotification", () => {
       invalidateQuery("groupsList");
+      invalidateQuery("peoplesChats");
     });
   }, [socket]);
 
