@@ -14,6 +14,7 @@ import admin from "firebase-admin";
 import fs from "fs";
 import { google } from "googleapis";
 import axios from "axios";
+import Device from "./models/wifi.model.js";
 
 // Create an Express application
 const app = express();
@@ -265,6 +266,46 @@ app.post("/api/v1/send-notification", async (req, res) => {
       success: false,
       message: "Failed to send notification.",
       error: error?.response?.data || error.message,
+    });
+  }
+});
+
+app.post("/api/v1/save-device-activity", async (req, res) => {
+  try {
+    const { device, deviceActivity } = req.body;
+
+    if (!device || !deviceActivity) {
+      return res.status(400).json({
+        success: false,
+        message: "Device and deviceActivity are required.",
+      });
+    }
+
+    const existingDevice = await Device.findOne({ device });
+
+    if (existingDevice) {
+      // Push new activity object into the existing array
+      existingDevice.deviceActivity.push(deviceActivity);
+      await existingDevice.save();
+    } else {
+      // Create a new device entry
+      const newDevice = new Device({
+        device,
+        deviceActivity: [deviceActivity],
+      });
+      await newDevice.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Device activity saved successfully.",
+    });
+  } catch (error) {
+    console.error("Error saving device activity:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to save device activity.",
+      error: error.message,
     });
   }
 });
