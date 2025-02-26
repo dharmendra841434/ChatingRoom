@@ -284,9 +284,22 @@ app.post("/api/v1/save-device-activity", async (req, res) => {
     const existingDevice = await Device.findOne({ device });
 
     if (existingDevice) {
-      // Push new activity object into the existing array
-      existingDevice.deviceActivity.push(deviceActivity);
-      await existingDevice.save();
+      // Check if an activity with the same connectedAt and disconnectedAt exists
+      const isDuplicate = existingDevice.deviceActivity.some(
+        (activity) =>
+          activity.connectedAt === deviceActivity.connectedAt &&
+          activity.disconnectedAt === deviceActivity.disconnectedAt
+      );
+
+      if (!isDuplicate) {
+        existingDevice.deviceActivity.push(deviceActivity);
+        await existingDevice.save();
+      } else {
+        return res.status(409).json({
+          success: false,
+          message: "Duplicate activity entry.",
+        });
+      }
     } else {
       // Create a new device entry
       const newDevice = new Device({
