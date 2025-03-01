@@ -50,12 +50,10 @@ app.use(cors(corsConfig));
 // Handle client connections
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
-
   // Join a chat room
   socket.on("joinGroup", async ({ groupKey, username, userId }) => {
     console.log(`User ${username} joined room ${groupKey}`);
     socket.join(groupKey);
-
     // Find the group
     const group = await Group.findOne({ groupKey });
 
@@ -93,7 +91,7 @@ io.on("connection", (socket) => {
     const chat = await UserChat.findOne({ chatKey });
 
     // Update all messages to mark them as read by this user
-    const updatedMessages = chat.messages.map((msg) => {
+    const updatedMessages = chat?.messages.map((msg) => {
       if (!msg.read.includes(userId)) {
         msg.read.push(userId);
       }
@@ -158,6 +156,7 @@ io.on("connection", (socket) => {
 
       io.to(chatKey).emit("receiveUserMessages", {
         messages: userchat?.messages,
+        chatKey: chatKey,
       });
     }
   );

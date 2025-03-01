@@ -21,7 +21,7 @@ const messaging = firebase.messaging();
 
 // Handle background notifications
 messaging.onBackgroundMessage((payload) => {
-  console.log("Received background message:", payload);
+  // console.log("Received background message:", payload);
 
   // Check if Firebase automatically handles the notification
   if (payload?.notification) return; // Don't manually show it if FCM does
@@ -60,7 +60,7 @@ self.addEventListener("activate", (event) => {
         .getSubscription()
         .then((subscription) => {
           if (!subscription) {
-            console.log("No active subscription found.");
+            //console.log("No active subscription found.");
           }
         });
     })

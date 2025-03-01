@@ -14,6 +14,18 @@ export const getAllGroups = async () => {
   return response.data || response; // Assuming the response contains the data
 };
 
+// Function to fetch individual group data
+export const getSingleGroup = async (groupKey) => {
+  const response = await axiosInstance.get(`/group/single-group/${groupKey}`);
+  return response.data || response; // Assuming the response contains the data
+};
+
+// Function to fetch individual chat data
+export const getSingleChat = async (chatKey) => {
+  const response = await axiosInstance.get(`/chat/single-chat/${chatKey}`);
+  return response.data || response; // Assuming the response contains the data /single-chat/:chatKey
+};
+
 // Function to fetch all users data
 export const getUserDetails = async () => {
   const response = await axiosInstance.get(`/auth/user-details`);

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { MdGroups } from "react-icons/md";
 import { HiOutlineUserGroup } from "react-icons/hi2";
@@ -13,19 +15,16 @@ import ProfileLoader from "./loaders/ProfileLoader";
 import UsersTabs from "./UsersTabs";
 import ProfileIcon from "./ProfileIcon";
 import { countUnreadMessages, hasUserReadLastMessage } from "@/services/helper";
-import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
+import useGetUserDetails from "@/hooks/authenticationHooks/useGetUserDetails";
+import CustomModal from "./CustomModal";
+import SelectedOptions from "./SelectedOptions";
 
-const DashboardTab = ({
-  handleStartConversation,
-  handleSelectOption,
-  userDetails,
-  handleSelectChat,
-  handleChangeUserstabs,
-  isExpand,
-  handleExpand,
-}) => {
+const DashboardTab = () => {
   const [activeTab, setActiveTab] = useState("groups");
   const { groupsList, isLoading } = useGetUserGroupsList();
+  const { userDetails } = useGetUserDetails();
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [showOptions, setShowOptions] = useState("create-group");
   const router = useRouter();
 
   const handleLogout = () => {
@@ -33,16 +32,42 @@ const DashboardTab = ({
     router.push("/");
   };
 
-  //console.log(groupsList, "groupsList");
+  const handleChangeTab = (tab) => {
+    setActiveTab(tab);
+    router.push(`/dashboard`);
+  };
+
+  const handleStartConversation = (group) => {
+    // console.log(group, "ajdgjsgd");
+    router.push(`/dashboard/group/${group?.data?.groupKey}`);
+  };
+
+  const handleSelectChat = (chat) => {
+    router.push(`/dashboard/user/${chat?.chatKey}`);
+  };
+
+  const handleSelectOption = (option) => {
+    setShowOptions(option);
+    setIsOpenModal(true);
+  };
+
+  const handleChangeUserstabs = () => {
+    //handleChangeUserstabs();
+    router.push(`/dashboard`);
+  };
 
   return (
-    <div className="w-[37%] xl:w-[25%] max-w-md mx-auto  border-r border-r-gray-200 bg-gray-200 relative">
-      <button
-        onClick={handleExpand}
-        className=" absolute -right-3 bg-purple-800 top-8 cursor-pointer"
-      >
-        <MdKeyboardDoubleArrowLeft className=" text-3xl text-white" />
-      </button>
+    <div className=" w-full h-full  border-r border-r-gray-200 bg-gray-200 relative">
+      <CustomModal isOpen={isOpenModal} onClose={setIsOpenModal}>
+        <div className=" p-6">
+          <SelectedOptions
+            show={showOptions}
+            handleClose={() => {
+              setIsOpenModal(false);
+            }}
+          />
+        </div>
+      </CustomModal>
       <div className="flex  ">
         <div
           className={`w-1/2 ${
@@ -56,11 +81,7 @@ const DashboardTab = ({
                 : "text-gray-300 bg-foreground rounded-br-3xl"
             }`}
             onClick={() => {
-              setActiveTab("users");
-              handleStartConversation({
-                type: "",
-                data: null,
-              });
+              handleChangeTab("users");
             }}
           >
             <MdGroups className=" text-3xl" />
@@ -80,11 +101,7 @@ const DashboardTab = ({
                 : "text-gray-300 bg-foreground rounded-bl-3xl"
             }`}
             onClick={() => {
-              setActiveTab("groups");
-              handleStartConversation({
-                type: "",
-                data: null,
-              });
+              handleChangeTab("groups");
             }}
           >
             <div
@@ -104,7 +121,7 @@ const DashboardTab = ({
           </button>
         </div>
       </div>
-      <div className="h-[82%]">
+      <div className="h-[79%] xl:h-[81%]">
         {activeTab === "users" && (
           <div className="text-gray-700 h-full bg-gray-100">
             <div className=" flex items-center justify-center py-4 px-3 space-x-2">
@@ -117,14 +134,6 @@ const DashboardTab = ({
                 <GoSearch className=" text-2xl" />
                 <p>Search People</p>
               </button>
-              {/* <button
-                onClick={() => {
-                  handleSelectOption("revieved-requist");
-                }}
-                className=" flex flex-row items-center justify-center space-x-1 border border-foreground rounded-lg px-3 py-1"
-              >
-                <p>Recieved Requests</p>
-              </button> */}
             </div>
 
             <UsersTabs
@@ -184,7 +193,7 @@ const DashboardTab = ({
                               ? `${
                                   hasUserReadLastMessage(
                                     group,
-                                    userDetails?.user
+                                    userDetails?.data?.user
                                   )
                                     ? " bg-white"
                                     : " bg-green-100"
@@ -194,12 +203,12 @@ const DashboardTab = ({
                         >
                           {countUnreadMessages(
                             group?.messages,
-                            userDetails?.user?._id
+                            userDetails?.data?.user?._id
                           ) !== 0 && (
                             <div className=" absolute bg-red-500  h-6 w-6 text-xs text-white right-5 rounded-full flex items-center justify-center ">
                               {countUnreadMessages(
                                 group?.messages,
-                                userDetails?.user?._id
+                                userDetails?.data?.user?._id
                               )}
                             </div>
                           )}
@@ -224,7 +233,7 @@ const DashboardTab = ({
                                   className={`text-xs mb-1.5 ${
                                     hasUserReadLastMessage(
                                       group,
-                                      userDetails?.user
+                                      userDetails?.data?.user
                                     )
                                       ? " text-gray-600"
                                       : " text-gray-900 font-semibold"
@@ -278,12 +287,12 @@ const DashboardTab = ({
           <div className=" flex flex-row items-center justify-between space-x-3  h-fit p-2 ">
             <div className=" flex flex-row items-center space-x-3">
               <img
-                src={userDetails?.user?.profile_pic}
+                src={userDetails?.data?.user?.profile_pic}
                 alt="dp"
                 className=" h-8 w-8 rounded-full "
               />
               <p className=" capitalize text-gray-700 font-medium">
-                {userDetails?.user?.full_name}
+                {userDetails?.data?.user?.full_name}
               </p>
             </div>
             <button onClick={handleLogout}>

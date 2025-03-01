@@ -36,6 +36,28 @@ const getAllGroupsOfUser = async (req, res) => {
       .json({ message: "An error occurred while fetching groups" });
   }
 };
+const getSingleGroup = async (req, res) => {
+  try {
+    const { groupKey } = req.params;
+
+    // Check if groupKey is provided
+    if (!groupKey) {
+      return res.status(400).json({ error: "Group key is required." });
+    }
+
+    // Fetch group from the database
+    const group = await Group.findOne({ groupKey: groupKey });
+
+    if (!group) {
+      return res.status(404).json({ error: "Group not found." });
+    }
+
+    return res.status(200).json({ success: true, data: group });
+  } catch (error) {
+    console.error("Error fetching group:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const createNewGroup = async (req, res) => {
   try {
@@ -200,6 +222,7 @@ const markAllMessagesAsRead = async (req, res) => {
 
 export {
   getAllGroupsOfUser,
+  getSingleGroup,
   createNewGroup,
   joinGroup,
   deleteGroup,

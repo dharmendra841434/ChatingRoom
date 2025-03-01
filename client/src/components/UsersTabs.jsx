@@ -26,7 +26,7 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
       .then((result) => {
         console.log(result);
         queryClient.invalidateQueries(["userDetails"]);
-
+        // queryClient.invalidateQueries(["peoplesChats"]);
         setActiveTab("connected");
       })
       .catch((error) => {
@@ -48,7 +48,7 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
       .finally(() => setCancelLoader(false));
   };
 
-  //console.log(peoplesChatLists, "peoplesChatLists");
+  console.log(peoplesChatLists, "peoplesChatLists");
 
   return (
     <div className=" h-[80%]">
@@ -87,13 +87,13 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
           <h2 className=" m-3 font-semibold text-gray-900">
             All Connected Users
           </h2>
-          {userDetails?.allFriends?.length === 0 ? (
+          {userDetails?.data?.allFriends?.length === 0 ? (
             <div className=" w-full h-full  flex flex-col items-center justify-center">
               <p>You have no Any People added yet ?</p>
             </div>
           ) : (
             <div className=" h-full w-full px-3 ">
-              {userDetails?.allFriends?.map((friend, idx) => (
+              {userDetails?.data?.allFriends?.map((friend, idx) => (
                 <div
                   key={idx}
                   onClick={() => {
@@ -101,7 +101,7 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                   }}
                   className={`flex flex-row  space-x-2 py-2 ${
                     isMessageReadUserChat(
-                      userDetails?.user?._id,
+                      userDetails?.data?.user?._id,
                       peoplesChatLists,
                       friend?._id
                     )
@@ -120,7 +120,7 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                     <p
                       className={`text-xs  ${
                         isMessageReadUserChat(
-                          userDetails?.user?._id,
+                          userDetails?.data?.user?._id,
                           peoplesChatLists,
                           friend?._id
                         )
@@ -132,7 +132,6 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                         const chat = peoplesChatLists?.find((item) =>
                           item?.chatKey?.split("_").includes(friend?._id)
                         );
-                        console.log(chat, "sjdfusd");
 
                         const lastMessage =
                           chat?.messages?.[chat.messages.length - 1];
@@ -153,13 +152,13 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
                     </p>
                   </div>
                   {countUserChatUnreadMessages(
-                    userDetails?.user?._id,
+                    userDetails?.data?.user?._id,
                     peoplesChatLists,
                     friend?._id
                   ) > 0 && (
                     <p className=" absolute right-3 bg-red-500 text-xs h-5 flex items-center justify-center w-5 rounded-full text-white">
                       {countUserChatUnreadMessages(
-                        userDetails?.user?._id,
+                        userDetails?.data?.user?._id,
                         peoplesChatLists,
                         friend?._id
                       )}
@@ -175,13 +174,13 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
           <h1 className=" m-3 font-semibold text-gray-900">
             All Pending requests
           </h1>
-          {userDetails?.recivedRequestsUsers?.length === 0 ? (
+          {userDetails?.data?.recivedRequestsUsers?.length === 0 ? (
             <div className=" h-full w-full flex justify-center items-center">
               <p> No Pending Requests</p>
             </div>
           ) : (
             <div className=" px-3">
-              {userDetails?.recivedRequestsUsers?.map((user, idx) => (
+              {userDetails?.data?.recivedRequestsUsers?.map((user, idx) => (
                 <div
                   key={idx}
                   className="flex items-center p-4 space-x-4 drop-shadow-sm w-full max-w-md bg-white rounded-lg border"
@@ -195,7 +194,7 @@ const UsersTabs = ({ userDetails, handleSelectChat, handleChangetabs }) => {
 
                   {/* User Info */}
                   <div className="flex-1">
-                    <h2 className="text-lg font-semibold capitalize">
+                    <h2 className=" font-medium capitalize">
                       {user.full_name}
                     </h2>
                     <p className="text-sm text-gray-500">@{user.username}</p>

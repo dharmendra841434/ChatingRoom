@@ -19,12 +19,14 @@ const HighOrderComponent = ({ children }) => {
           if (!registration) {
             navigator.serviceWorker
               .register("/firebase-messaging-sw.js")
-              .then((reg) => console.log("Service Worker registered:", reg))
-              .catch((err) =>
-                console.error("Service Worker registration failed:", err)
-              );
+              .then((reg) => {
+                console.log("Service Worker registered:", reg);
+              })
+              .catch((err) => {
+                console.error("Service Worker registration failed:", err);
+              });
           } else {
-            console.log("Service Worker already registered:", registration);
+            //console.log("Service Worker already registered:", registration);
           }
         });
     }
@@ -37,7 +39,7 @@ const HighOrderComponent = ({ children }) => {
       const messaging = await getFCM();
 
       unsubscribe = onMessage(messaging, (payload) => {
-        console.log("Message test received:", payload);
+        //  console.log("Message test received:", payload);
 
         // Extract title & body from notification
         const title = payload?.notification?.title || "New Notification";
@@ -60,6 +62,8 @@ const HighOrderComponent = ({ children }) => {
 
   useEffect(() => {
     socket.on("receiveNotification", () => {
+      console.log("Notification received");
+
       invalidateQuery("groupsList");
       invalidateQuery("peoplesChats");
     });

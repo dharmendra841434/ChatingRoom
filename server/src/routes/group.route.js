@@ -3,6 +3,7 @@ import {
   createNewGroup,
   deleteGroup,
   getAllGroupsOfUser,
+  getSingleGroup,
   joinGroup,
   markAllMessagesAsRead,
   markMessageAsRead,
@@ -16,6 +17,7 @@ router.get("/health", (req, res) => {
 });
 
 router.route("/all").get(verifyUserToken, getAllGroupsOfUser);
+router.route("/single-group/:groupKey").get(verifyUserToken, getSingleGroup);
 router.route("/create").post(verifyUserToken, createNewGroup);
 router.route("/join").post(verifyUserToken, joinGroup);
 router.route("/delete-group").post(verifyUserToken, deleteGroup);

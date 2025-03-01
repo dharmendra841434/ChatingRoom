@@ -5,7 +5,7 @@ import { getToken } from "firebase/messaging";
 export async function getFCM() {
   const messaging = await messagingPromise;
   if (!messaging) return console.warn("No messaging instance available.");
-  console.log("Messaging is ready:", messaging);
+  //console.log("Messaging is ready:", messaging);
   return messaging;
 }
 
@@ -90,7 +90,7 @@ export const sendNotificationToUsers = async (
       vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
 
-    console.log(currentDeviceToken, "ct");
+    //console.log(currentDeviceToken, "ct");
 
     // const usersDeviceTokens = GroupDeviceTokens.filter(
     //   (token) => token !== currentDeviceToken
@@ -142,4 +142,8 @@ export const countUserChatUnreadMessages = (
 
   return chat.messages.filter((message) => !message.read?.includes(userId))
     .length;
+};
+
+export const filterParticipants = (participants, userId) => {
+  return participants?.find((participant) => participant?._id !== userId);
 };

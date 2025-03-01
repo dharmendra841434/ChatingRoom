@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteGroupRequest } from "../ApiRequiests/userApi";
 import showToast from "@/services/ShowToast";
 
-const useDeleteGroup = ({ setActiveConversation, setThreedot }) => {
+const useDeleteGroup = ({ setThreedot }) => {
   const queryClient = useQueryClient(); // Get the query client instance
 
   const {
@@ -20,9 +20,6 @@ const useDeleteGroup = ({ setActiveConversation, setThreedot }) => {
     },
     onError: (error) => {
       showToast("error", `❌ Delete failed: ${error?.response?.data?.message}`);
-
-      // Ensure UI resets even if deletion fails
-      setActiveConversation({ type: "", data: null });
       setThreedot(false);
     },
   });

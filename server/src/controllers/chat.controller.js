@@ -55,4 +55,27 @@ const getChatDataByUserId = async (req, res) => {
   }
 };
 
-export { markAllMessagesAsRead, getChatDataByUserId };
+const getSingleUserChat = async (req, res) => {
+  try {
+    const { chatKey } = req.params;
+
+    // Check if groupKey is provided
+    if (!chatKey) {
+      return res.status(400).json({ error: "Chat key is required." });
+    }
+
+    // Fetch group from the database
+    const chat = await UserChat.findOne({ chatKey: chatKey });
+
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found." });
+    }
+
+    return res.status(200).json({ success: true, data: chat });
+  } catch (error) {
+    console.error("Error fetching chat:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export { markAllMessagesAsRead, getChatDataByUserId, getSingleUserChat };
