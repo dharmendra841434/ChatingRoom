@@ -17,12 +17,12 @@ import useDeleteGroup from "@/hooks/groupHooks/useDeleteGroup";
 import { useSocket } from "@/services/SocketProvider";
 import useCloudinaryUpload from "@/hooks/useCloudinary";
 import { getUserProfile } from "@/hooks/ApiRequiests/userApi";
-import useUpdateReadMessages from "@/hooks/groupHooks/useUpdateReadMessages";
 import CustomModal from "@/components/CustomModal";
 import UserProfileCard from "@/components/UserProfile";
 import { IoMdClose } from "react-icons/io";
 import useInvalidateQuery from "@/hooks/useInvalidateQuery";
 import useGetSingleChat from "@/hooks/usersChat/useGetSingleChat";
+import useMarkAsReadChatMessage from "@/hooks/authenticationHooks/useMarkAsReadChatMessage";
 
 const StartUserChat = ({ params }) => {
   const paramsData = use(params);
@@ -37,7 +37,7 @@ const StartUserChat = ({ params }) => {
     setThreedot: setThreedot,
   });
   const { progress, uploadFile } = useCloudinaryUpload();
-  const { updateReadsMessage } = useUpdateReadMessages();
+  const { updateChatReadsMessage } = useMarkAsReadChatMessage();
   const [viewUserProfile, setViewUserProfile] = useState(null);
   const { chatData } = useGetSingleChat(paramsData.chatKey);
   const invalidateQuery = useInvalidateQuery();
@@ -164,10 +164,10 @@ const StartUserChat = ({ params }) => {
     const handleReceiveChatMessages = ({ messages, chatKey }) => {
       console.log(chatKey, " groupKey");
       if (chatKey === chatData?.data?.chatKey) {
-        //   updateReadsMessage({
-        //     groupId: group?.data?.groupKey,
-        //     userId: userDetails?.data?.user?._id,
-        //   });
+        updateChatReadsMessage({
+          chatKey: chatData?.data?.chatKey,
+          userId: userDetails.data.user._id,
+        });
         setMessages(messages);
         setInput("");
         invalidateQuery("peoplesChats");
