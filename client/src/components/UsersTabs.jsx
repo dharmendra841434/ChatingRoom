@@ -9,7 +9,6 @@ import useGetAllPeoplesChat from "@/hooks/authenticationHooks/useGetAllPeoplesCh
 import { useSocket } from "@/services/SocketProvider";
 import {
   countUserChatUnreadMessages,
-  isMessageRead,
   isMessageReadUserChat,
 } from "@/services/helper";
 

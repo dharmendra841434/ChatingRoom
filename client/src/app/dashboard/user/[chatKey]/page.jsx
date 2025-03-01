@@ -166,7 +166,7 @@ const StartUserChat = ({ params }) => {
       if (chatKey === chatData?.data?.chatKey) {
         updateChatReadsMessage({
           chatKey: chatData?.data?.chatKey,
-          userId: userDetails.data.user._id,
+          userId: userDetails?.data?.user?._id,
         });
         setMessages(messages);
         setInput("");
