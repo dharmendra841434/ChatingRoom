@@ -26,12 +26,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className=" hidden lg:block">
+        <div className=" hidden md:block">
           <SocketProvider>
             <HighOrderComponent>{children}</HighOrderComponent>
           </SocketProvider>
         </div>
-        <div className=" lg:hidden flex items-center justify-center h-screen">
+        <div className=" md:hidden flex items-center justify-center h-screen">
           <DownloadAppBanner />
         </div>
         <div id="modal"></div>

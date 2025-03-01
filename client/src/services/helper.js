@@ -90,23 +90,25 @@ export const sendNotificationToUsers = async (
       vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
 
-    const usersDeviceTokens = GroupDeviceTokens.filter(
-      (token) => token !== currentDeviceToken
-    );
+    console.log(currentDeviceToken, "ct");
 
-    //console.log(usersDeviceTokens, "ct");
+    // const usersDeviceTokens = GroupDeviceTokens.filter(
+    //   (token) => token !== currentDeviceToken
+    // );
 
-    console.log({
-      title: `New Message from ${userDetails?.data?.user?.full_name}`,
-      body: input,
-      deviceTokens: usersDeviceTokens,
-    });
+    // //console.log(usersDeviceTokens, "ct");
 
-    await sendNotifications({
-      title: `New Message from ${userDetails?.data?.user?.full_name}`,
-      body: input,
-      deviceTokens: usersDeviceTokens,
-    });
+    // console.log({
+    //   title: `New Message from ${userDetails?.data?.user?.full_name}`,
+    //   body: input,
+    //   deviceTokens: usersDeviceTokens,
+    // });
+
+    // await sendNotifications({
+    //   title: `New Message from ${userDetails?.data?.user?.full_name}`,
+    //   body: input,
+    //   deviceTokens: usersDeviceTokens,
+    // });
   } catch (error) {
     console.error("Error sending notification:", error);
   }

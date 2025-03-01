@@ -268,10 +268,12 @@ const DashboardPage = () => {
         });
       }
     };
-    const handleReciveGroupMessages = ({ messages }) => {
-      //console.log(messages, "recived group messages");
-      setMessages(messages);
-      //invalidateQuery("groupsList");
+    const handleReciveGroupMessages = ({ messages, groupKey }) => {
+      console.log(groupKey, "recived group messages");
+      if (activeConversation?.data?.groupKey === groupKey) {
+        setMessages(messages);
+      }
+
       setInput("");
       if (activeConversation?.data !== null) {
         updateReadsMessage({

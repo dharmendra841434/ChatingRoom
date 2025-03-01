@@ -133,7 +133,10 @@ io.on("connection", (socket) => {
         await group.save();
       }
 
-      io.to(groupKey).emit("receiveMessages", { messages: group?.messages });
+      io.to(groupKey).emit("receiveMessages", {
+        messages: group?.messages,
+        groupKey: groupKey,
+      });
     }
   );
 
@@ -207,13 +210,6 @@ app.post("/api/v1/send-notification", async (req, res) => {
   try {
     const { deviceTokens, title, body } = req.body;
 
-    // if (deviceTokens?.length == 0 || !title || !body) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Missing required fields: fcmToken, title, and body.",
-    //   });
-    // }
-
     const accessToken = await getAccessToken();
     if (!accessToken) {
       return res.status(500).json({
@@ -231,9 +227,7 @@ app.post("/api/v1/send-notification", async (req, res) => {
 
     for (let i = 0; i < deviceTokens.length; i++) {
       const fcmToken = deviceTokens[i];
-
       // console.log(fcmToken, "this is device token ");
-
       const data = {
         message: {
           token: fcmToken,
@@ -250,6 +244,58 @@ app.post("/api/v1/send-notification", async (req, res) => {
         { headers }
       );
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Notification sent successfully.",
+      // firebaseResponse: response.data,
+    });
+  } catch (error) {
+    console.error(
+      "Error sending notification:",
+      error?.response?.data || error.message
+    );
+
+    return res.status(error?.response?.status || 500).json({
+      success: false,
+      message: "Failed to send notification.",
+      error: error?.response?.data || error.message,
+    });
+  }
+});
+
+app.post("/api/v1/send-single-notification", async (req, res) => {
+  try {
+    const { deviceToken, title, body } = req.body;
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to retrieve access token.",
+      });
+    }
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const data = {
+      message: {
+        token: deviceToken,
+        notification: {
+          title,
+          body,
+        },
+      },
+    };
+
+    await axios.post(
+      "https://fcm.googleapis.com/v1/projects/pingpong-8a4de/messages:send",
+      data,
+      { headers }
+    );
 
     return res.status(200).json({
       success: true,
